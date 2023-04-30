@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://tempuri.org/">
+    <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">FIMP Web Service</wsdl:documentation>
     <wsdl:types>
         <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
             <s:element name="Rv">
@@ -13,26 +13,6 @@
                 <s:complexType>
                     <s:sequence>
                         <s:element minOccurs="0" maxOccurs="1" name="RvResult">
-                            <s:complexType>
-                                <s:sequence>
-                                    <s:any minOccurs="2" maxOccurs="2"/>
-                                </s:sequence>
-                            </s:complexType>
-                        </s:element>
-                    </s:sequence>
-                </s:complexType>
-            </s:element>
-            <s:element name="ETL_Rv">
-                <s:complexType>
-                    <s:sequence>
-                        <s:element minOccurs="0" maxOccurs="1" name="sParam" type="s:string"/>
-                    </s:sequence>
-                </s:complexType>
-            </s:element>
-            <s:element name="ETL_RvResponse">
-                <s:complexType>
-                    <s:sequence>
-                        <s:element minOccurs="0" maxOccurs="1" name="ETL_RvResult">
                             <s:complexType>
                                 <s:sequence>
                                     <s:any minOccurs="2" maxOccurs="2"/>
@@ -57,18 +37,23 @@
                     </s:sequence>
                 </s:complexType>
             </s:element>
-            <s:element name="ETL_Tx">
+            <s:element name="GetServerTime">
+                <s:complexType/>
+            </s:element>
+            <s:element name="GetServerTimeResponse">
                 <s:complexType>
                     <s:sequence>
-                        <s:element minOccurs="0" maxOccurs="1" name="sParam" type="s:string"/>
-                        <s:element minOccurs="0" maxOccurs="1" name="sType" type="s:string"/>
+                        <s:element minOccurs="1" maxOccurs="1" name="GetServerTimeResult" type="s:dateTime"/>
                     </s:sequence>
                 </s:complexType>
             </s:element>
-            <s:element name="ETL_TxResponse">
+            <s:element name="GetSapConnectionString">
+                <s:complexType/>
+            </s:element>
+            <s:element name="GetSapConnectionStringResponse">
                 <s:complexType>
                     <s:sequence>
-                        <s:element minOccurs="0" maxOccurs="1" name="ETL_TxResult" type="s:string"/>
+                        <s:element minOccurs="0" maxOccurs="1" name="GetSapConnectionStringResult" type="s:string"/>
                     </s:sequence>
                 </s:complexType>
             </s:element>
@@ -80,59 +65,50 @@
     <wsdl:message name="RvSoapOut">
         <wsdl:part name="parameters" element="tns:RvResponse"/>
     </wsdl:message>
-    <wsdl:message name="ETL_RvSoapIn">
-        <wsdl:part name="parameters" element="tns:ETL_Rv"/>
-    </wsdl:message>
-    <wsdl:message name="ETL_RvSoapOut">
-        <wsdl:part name="parameters" element="tns:ETL_RvResponse"/>
-    </wsdl:message>
     <wsdl:message name="TxSoapIn">
         <wsdl:part name="parameters" element="tns:Tx"/>
     </wsdl:message>
     <wsdl:message name="TxSoapOut">
         <wsdl:part name="parameters" element="tns:TxResponse"/>
     </wsdl:message>
-    <wsdl:message name="ETL_TxSoapIn">
-        <wsdl:part name="parameters" element="tns:ETL_Tx"/>
+    <wsdl:message name="GetServerTimeSoapIn">
+        <wsdl:part name="parameters" element="tns:GetServerTime"/>
     </wsdl:message>
-    <wsdl:message name="ETL_TxSoapOut">
-        <wsdl:part name="parameters" element="tns:ETL_TxResponse"/>
+    <wsdl:message name="GetServerTimeSoapOut">
+        <wsdl:part name="parameters" element="tns:GetServerTimeResponse"/>
     </wsdl:message>
-    <wsdl:portType name="ServiceSoap">
+    <wsdl:message name="GetSapConnectionStringSoapIn">
+        <wsdl:part name="parameters" element="tns:GetSapConnectionString"/>
+    </wsdl:message>
+    <wsdl:message name="GetSapConnectionStringSoapOut">
+        <wsdl:part name="parameters" element="tns:GetSapConnectionStringResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="SFIS_WSSoap">
         <wsdl:operation name="Rv">
-            <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Call Web Service Sfis Service</wsdl:documentation>
+            <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Call method in retrieval from xml. Return records or error message.</wsdl:documentation>
             <wsdl:input message="tns:RvSoapIn"/>
             <wsdl:output message="tns:RvSoapOut"/>
         </wsdl:operation>
-        <wsdl:operation name="ETL_Rv">
-            <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Call Web Service Etl Service</wsdl:documentation>
-            <wsdl:input message="tns:ETL_RvSoapIn"/>
-            <wsdl:output message="tns:ETL_RvSoapOut"/>
-        </wsdl:operation>
         <wsdl:operation name="Tx">
-            <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Call Sfisws in Transaction Return OK or Error Message</wsdl:documentation>
+            <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Call method in transaction from xml. Return OK or error message.</wsdl:documentation>
             <wsdl:input message="tns:TxSoapIn"/>
             <wsdl:output message="tns:TxSoapOut"/>
         </wsdl:operation>
-        <wsdl:operation name="ETL_Tx">
-            <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Call  Etl Service  in Transaction Return OK or Error Message</wsdl:documentation>
-            <wsdl:input message="tns:ETL_TxSoapIn"/>
-            <wsdl:output message="tns:ETL_TxSoapOut"/>
+        <wsdl:operation name="GetServerTime">
+            <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Return web server Current Time.</wsdl:documentation>
+            <wsdl:input message="tns:GetServerTimeSoapIn"/>
+            <wsdl:output message="tns:GetServerTimeSoapOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetSapConnectionString">
+            <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Return Sap Connection String.</wsdl:documentation>
+            <wsdl:input message="tns:GetSapConnectionStringSoapIn"/>
+            <wsdl:output message="tns:GetSapConnectionStringSoapOut"/>
         </wsdl:operation>
     </wsdl:portType>
-    <wsdl:binding name="ServiceSoap" type="tns:ServiceSoap">
+    <wsdl:binding name="SFIS_WSSoap" type="tns:SFIS_WSSoap">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
         <wsdl:operation name="Rv">
             <soap:operation soapAction="http://tempuri.org/Rv" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="ETL_Rv">
-            <soap:operation soapAction="http://tempuri.org/ETL_Rv" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -149,8 +125,17 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="ETL_Tx">
-            <soap:operation soapAction="http://tempuri.org/ETL_Tx" style="document"/>
+        <wsdl:operation name="GetServerTime">
+            <soap:operation soapAction="http://tempuri.org/GetServerTime" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetSapConnectionString">
+            <soap:operation soapAction="http://tempuri.org/GetSapConnectionString" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -159,19 +144,10 @@
             </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>
-    <wsdl:binding name="ServiceSoap12" type="tns:ServiceSoap">
+    <wsdl:binding name="SFIS_WSSoap12" type="tns:SFIS_WSSoap">
         <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
         <wsdl:operation name="Rv">
             <soap12:operation soapAction="http://tempuri.org/Rv" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="ETL_Rv">
-            <soap12:operation soapAction="http://tempuri.org/ETL_Rv" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -188,8 +164,17 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="ETL_Tx">
-            <soap12:operation soapAction="http://tempuri.org/ETL_Tx" style="document"/>
+        <wsdl:operation name="GetServerTime">
+            <soap12:operation soapAction="http://tempuri.org/GetServerTime" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetSapConnectionString">
+            <soap12:operation soapAction="http://tempuri.org/GetSapConnectionString" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -198,12 +183,13 @@
             </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>
-    <wsdl:service name="Service">
-        <wsdl:port name="ServiceSoap" binding="tns:ServiceSoap">
-            <soap:address location="http://172.20.131.245/auto_testing_service/Service.asmx"/>
+    <wsdl:service name="SFIS_WS">
+        <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">FIMP Web Service</wsdl:documentation>
+        <wsdl:port name="SFIS_WSSoap" binding="tns:SFIS_WSSoap">
+            <soap:address location="http://172.20.131.245/FIMPWS_MS_EXT/SFIS_WS.asmx"/>
         </wsdl:port>
-        <wsdl:port name="ServiceSoap12" binding="tns:ServiceSoap12">
-            <soap12:address location="http://172.20.131.245/auto_testing_service/Service.asmx"/>
+        <wsdl:port name="SFIS_WSSoap12" binding="tns:SFIS_WSSoap12">
+            <soap12:address location="http://172.20.131.245/FIMPWS_MS_EXT/SFIS_WS.asmx"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

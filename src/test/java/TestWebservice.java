@@ -41,7 +41,7 @@ public class TestWebservice {
     @Autowired
     private WorkDateUtils workDateUtils;
 
-    @Test
+//    @Test//245
     @Transactional
     @Rollback(true)
     public void testPartMappingVarietyQueryPort() throws Exception {

@@ -61,7 +61,8 @@ import javax.xml.bind.annotation.XmlValue;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "method",
-    "partmappingvariety"
+    "partmappingvariety",
+    "extdept"
 })
 @XmlRootElement(name = "root")
 public class PartMappingVarietyQueryRoot {
@@ -70,6 +71,8 @@ public class PartMappingVarietyQueryRoot {
     protected PartMappingVarietyQueryRoot.METHOD method;
     @XmlElement(name = "PART_MAPPING_VARIETY", required = true)
     protected PartMappingVarietyQueryRoot.PARTMAPPINGVARIETY partmappingvariety;
+    @XmlElement(name = "EXT_DEPT", required = true)
+    protected String extdept = "PD03";
 
     public PartMappingVarietyQueryRoot() {
         this.method = new PartMappingVarietyQueryRoot.METHOD();
@@ -116,6 +119,14 @@ public class PartMappingVarietyQueryRoot {
         this.partmappingvariety = value;
     }
 
+    public String getExtdept() {
+        return extdept;
+    }
+
+    public void setExtdept(String extdept) {
+        this.extdept = extdept;
+    }
+
     /**
      * <p>
      * anonymous complex type 的 Java 類別.
@@ -144,7 +155,7 @@ public class PartMappingVarietyQueryRoot {
         @XmlValue
         protected String value;
         @XmlAttribute(name = "ID")
-        protected String id = "EMSSO.QryPartMappingVariety001";
+        protected String id = "Advantech.EMS.TOL.BLL.QryPartMappingVariety001";
 
         /**
          * 取得 value 特性的值.

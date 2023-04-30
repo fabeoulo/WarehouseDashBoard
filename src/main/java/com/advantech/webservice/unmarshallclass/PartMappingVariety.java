@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Wei.Cheng
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "QryData")
+@XmlRootElement(name = "QryPartMappingVariety001")
 public class PartMappingVariety implements Serializable {
 
     @XmlElement(name = "ITEM_NO")
