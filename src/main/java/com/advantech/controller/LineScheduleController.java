@@ -16,6 +16,9 @@ import com.advantech.service.FloorService;
 import com.advantech.service.LineScheduleService;
 import com.advantech.service.LineScheduleStatusService;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
@@ -72,6 +75,17 @@ public class LineScheduleController extends CrudController<LineSchedule> {
 
         return lineScheduleService.findSchedule(input, f);
 
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "findMap", method = {RequestMethod.GET})
+    protected Map<String, String> findMap(
+            @Valid DataTablesInput input,
+            @RequestParam(required = false) Integer floor_id,
+            HttpServletRequest request) throws Exception {
+
+        List<LineSchedule> l = lineScheduleService.findByFloorIdAndOnBoardDateGreaterThan(floor_id, new DateTime().minusMonths(1).toDate());
+        return l.stream().collect(Collectors.toMap(LineSchedule::getPo, LineSchedule::getModelName, (oldValue, newValue) -> oldValue));
     }
 
     @ResponseBody

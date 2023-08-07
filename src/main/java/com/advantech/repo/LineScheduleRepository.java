@@ -31,8 +31,11 @@ public interface LineScheduleRepository extends JpaRepository<LineSchedule, Inte
 
     @Query(value = "{CALL usp_GetPrepareSchedule(:sD)}", nativeQuery = true)
     public List<RemoteSchedule> getPrepareSchedule(@Param("sD") Date sD);
-    
+
     public List<LineSchedule> findByLine(Line line);
 
     public List<LineSchedule> findByOnBoardDateBetween(Date sD, Date eD);
+
+    public List<LineSchedule> findByFloorIdAndOnBoardDateGreaterThan(int floorId, Date sD);
+
 }

@@ -33,7 +33,7 @@ public class StorageSpaceGroupService {
     }
 
     public List<StorageSpaceGroup> findByFloorOrderByName(Floor floor) {
-        return repo.findByFloorAndEnabledOrderByName(floor, 1);
+        return repo.findByFloorAndEnabledOrderByPriority(floor, 1);
     }
 
 }

@@ -34,12 +34,27 @@ public class StorageSpaceService {
         return repo.findById(id);
     }
 
+//    public StorageSpace findWithLazyById(Integer id) {
+//        return repo.findWithLazyById(id);
+//    }
+    
+    public List<StorageSpace> findAllById(List<Integer> id) {
+        return repo.findAllById(id);
+    }
+
     public List<StorageSpace> findByFloor(Floor f) {
         return repo.findByFloor(f);
+    }
+
+    public List<StorageSpace> findEmptyByFloor(Floor f) {
+        return repo.findEmptyByFloor(f);
     }
 
     public List<StorageSpace> findByStorageSpaceGroupOrderByName(StorageSpaceGroup group) {
         return repo.findByStorageSpaceGroupOrderByName(group);
     }
 
+    public <S extends StorageSpace> S save(S s) {
+        return repo.save(s);
+    }
 }

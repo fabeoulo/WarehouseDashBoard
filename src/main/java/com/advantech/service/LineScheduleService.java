@@ -14,6 +14,7 @@ import com.advantech.model.StorageSpace;
 import com.advantech.model.Warehouse;
 import com.advantech.repo.LineScheduleRepository;
 import static com.google.common.base.Preconditions.checkState;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -51,6 +52,9 @@ public class LineScheduleService {
 
     @Autowired
     private LineService lineService;
+
+    @Autowired
+    private FloorService floorService;
 
     public DataTablesOutput<LineSchedule> findAll(DataTablesInput dti) {
         return repo.findAll(dti);
@@ -171,21 +175,46 @@ public class LineScheduleService {
     }
 
     public void updateStatus(Warehouse w, LineScheduleStatus status) {
+        batchUpdateStatus(Arrays.asList(w), status);
+//        LineScheduleStatus onBoard = stateService.getOne(4);
+//        Floor f = getWarehouseFloor(w);
+//        LineSchedule schedule = this.findFirstByPoAndFloorAndLineScheduleStatusNot(w.getPo(), f, onBoard);
+//        if (schedule != null) {
+//            checkState(!(schedule.getLine() == null && status.getId() == 4), "Can't pull out when po's line is not setting");
+//            schedule.setLineScheduleStatus(status);
+//            if (status.getId() != 4) {
+//                schedule.setStorageSpace(w.getStorageSpace());
+//            }
+//            repo.save(schedule);
+//            if (w.getLineSchedule() == null) {
+//                w.setLineSchedule(schedule);
+//                warehouseService.save(w);
+//            }
+//        }
+    }
+
+    public void batchUpdateStatus(List<Warehouse> whs, LineScheduleStatus status) {
         LineScheduleStatus onBoard = stateService.getOne(4);
-        Floor f = getWarehouseFloor(w);
-        LineSchedule schedule = this.findFirstByPoAndFloorAndLineScheduleStatusNot(w.getPo(), f, onBoard);
-        if (schedule != null) {
-            checkState(!(schedule.getLine() == null && status.getId() == 4), "Can't pull out when po's line is not setting");
-            schedule.setLineScheduleStatus(status);
-            if (status.getId() != 4) {
-                schedule.setStorageSpace(w.getStorageSpace());
+        whs.stream().forEach(w -> {
+            Floor f = getWarehouseFloor(w);
+            LineSchedule schedule = this.findFirstByPoAndFloorAndLineScheduleStatusNot(w.getPo(), f, onBoard);
+            if (schedule != null) {
+                checkState(!(schedule.getLine() == null && status.getId() == 4), "Can't pull out when po's line is not setting");
+                schedule.setLineScheduleStatus(status);
+                if (status.getId() != 4) {
+                    schedule.setStorageSpace(w.getStorageSpace());
+                }
+                repo.save(schedule);
+                if (w.getLineSchedule() == null) {
+                    w.setLineSchedule(schedule);
+                    warehouseService.save(w);
+                }
             }
-            repo.save(schedule);
-            if (w.getLineSchedule() == null) {
-                w.setLineSchedule(schedule);
-                warehouseService.save(w);
-            }
-        }
+        });
+    }
+
+    public List<LineSchedule> findByFloorIdAndOnBoardDateGreaterThan(int floorId, Date sD) {
+        return repo.findByFloorIdAndOnBoardDateGreaterThan(floorId, sD);
     }
 
     public LineSchedule findFirstByPoAndFloorAndLineScheduleStatusNot(String po, Floor f, LineScheduleStatus status) {

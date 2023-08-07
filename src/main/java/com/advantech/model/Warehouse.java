@@ -40,6 +40,12 @@ public class Warehouse implements java.io.Serializable {
         this.storageSpace = storageSpace;
     }
 
+    public Warehouse(String po, StorageSpace storageSpace, int flag) {
+        this.po = po;
+        this.storageSpace = storageSpace;
+        this.flag = flag;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", unique = true, nullable = false)

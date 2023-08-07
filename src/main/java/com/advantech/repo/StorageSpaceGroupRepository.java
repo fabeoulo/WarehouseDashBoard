@@ -20,5 +20,5 @@ public interface StorageSpaceGroupRepository extends JpaRepository<StorageSpaceG
 
     public List<StorageSpaceGroup> findAllByOrderByName();
     
-    public List<StorageSpaceGroup> findByFloorAndEnabledOrderByName(Floor floor, int enabledFlag);
+    public List<StorageSpaceGroup> findByFloorAndEnabledOrderByPriority(Floor floor, int enabledFlag);
 }

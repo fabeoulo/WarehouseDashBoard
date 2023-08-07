@@ -148,6 +148,9 @@
                                 <li>
                                     <a href="layout.jsp?content=warehouse&floor_id=5#">TEST_F</a>
                                 </li>
+                                <li>
+                                    <a href="layout.jsp?content=whPosition&floor_id=7#">7FDemo</a>
+                                </li>
                             </c:if>
                         </ul>
                     </li>

@@ -29,6 +29,7 @@ public class StorageSpaceGroup implements java.io.Serializable {
     private String name;
     private int enabled;
     private Floor floor;
+    private int priority;
 
     @JsonIgnore
     private Set<StorageSpace> storageSpaces = new HashSet<StorageSpace>(0);
@@ -73,6 +74,15 @@ public class StorageSpaceGroup implements java.io.Serializable {
 
     public void setFloor(Floor floor) {
         this.floor = floor;
+    }
+
+    @Column(name = "priority", nullable = false)
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "storageSpaceGroup")

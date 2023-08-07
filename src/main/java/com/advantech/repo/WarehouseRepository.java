@@ -29,6 +29,9 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Integer> {
      */
     public List<Warehouse> findByFlag(int flag);
 
+    @Query("select w from Warehouse w join w.storageSpace sp where sp.id IN :ids and w.flag = :flag")
+    public List<Warehouse> findByIdsAndFlag(List<Integer> ids, @Param("flag") int flag);
+
     @Query("select w from Warehouse w join w.storageSpace sp join sp.storageSpaceGroup g where g.floor = :floor and w.flag = :flag")
     public List<Warehouse> findByFloorAndFlag(@Param("floor") Floor floor, @Param("flag") int flag);
 

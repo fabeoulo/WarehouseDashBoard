@@ -20,10 +20,16 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface StorageSpaceRepository extends JpaRepository<StorageSpace, Integer> {
-    
-    @Query("select s from StorageSpace s join s.storageSpaceGroup sg where sg.floor = :floor")
+
+    @Query("select s from StorageSpace s join s.storageSpaceGroup sg where sg.floor = :floor order by sg.priority")
     public List<StorageSpace> findByFloor(@Param("floor") Floor f);
+
+    @Query("select s from StorageSpace s join s.storageSpaceGroup sg where sg.floor = :floor and s.blocked = FALSE order by sg.priority, s.priority")
+    public List<StorageSpace> findEmptyByFloor(@Param("floor") Floor f);    
+    
+//    @Query("SELECT s FROM StorageSpace s JOIN FETCH s.storageSpaceGroup sg JOIN FETCH sg.floor f where s.id = :id")
+//    public StorageSpace findWithLazyById(@Param("id") Integer id);
     
     public List<StorageSpace> findByStorageSpaceGroupOrderByName(StorageSpaceGroup group);
-    
+
 }
