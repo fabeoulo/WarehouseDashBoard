@@ -15,7 +15,9 @@ import com.advantech.model.Warehouse;
 import com.advantech.model.WarehouseEvent;
 import com.advantech.repo.WarehouseRepository;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.hibernate.Hibernate;
@@ -54,7 +56,7 @@ public class WarehouseService {
         return repo.findById(id);
     }
 
-    public List<Warehouse> findByIdsAndFlag(List<Integer> storageSpaceId, int flag) {
+    public List<Warehouse> findBySsidsAndFlag(List<Integer> storageSpaceId, int flag) {
         List<Warehouse> l = repo.findByIdsAndFlag(storageSpaceId, flag);
         l.forEach(w -> {
             if (w.getLineSchedule() != null) {
@@ -64,7 +66,7 @@ public class WarehouseService {
         });
         return l;
     }
-    
+
     public List<Warehouse> findByStorageSpaceGroupAndFlag(StorageSpaceGroup storageSpaceGroup, int flag) {
         List<Warehouse> l = repo.findByStorageSpaceGroupAndFlag(storageSpaceGroup, flag);
         l.forEach(w -> {
@@ -77,7 +79,12 @@ public class WarehouseService {
     }
 
     public List<Warehouse> findByPoAndFloorAndFlag(String po, Floor floor, int flag) {
-        return repo.findByPoAndFloorAndFlag(po, floor, flag);
+        return repo.findByPosAndFloorAndFlag(Arrays.asList(po), floor, flag);
+    }
+
+    public Map<String, List<Warehouse>> getActiveWhsByPoMap(List<String> pos, Floor floor, int flag) {
+        List<Warehouse> l = repo.findByPosAndFloorAndFlag(pos, floor, flag);
+        return l.stream().collect(Collectors.groupingBy(Warehouse::getPo));
     }
 
     public <S extends Warehouse> S save(S s) {
@@ -111,10 +118,8 @@ public class WarehouseService {
         repo.saveAll(whList);
         List<WarehouseEvent> whE = whList.stream().map(w -> new WarehouseEvent(w, user, action)).collect(Collectors.toList());
         warehouseEventService.saveAll(whE);
-        StorageSpace ss = whList.get(0).getStorageSpace();
-        ss.setBlocked(true);
-        storageSpaceService.save(ss);
 
+        StorageSpace ss = storageSpaceService.findById(whList.get(0).getStorageSpace().getId()).get();
         LineScheduleStatus status = null;
         if (null == action) {
 
@@ -122,14 +127,17 @@ public class WarehouseService {
             switch (action) {
                 case "PUT_IN":
                     status = this.lineScheduleStatusService.getOne(2);
+                    ss.setBlocked(true);
                     break;
                 case "PULL_OUT":
                     status = this.lineScheduleStatusService.getOne(4);
+                    ss.setBlocked(false);
                     break;
                 default:
                     throw new IllegalArgumentException();
             }
         }
+        storageSpaceService.save(ss);
         this.lineScheduleService.batchUpdateStatus(whList, status);
     }
 
@@ -148,4 +156,32 @@ public class WarehouseService {
 
     }
 
+    public void batchChangeStorageSpace(List<Warehouse> whSrc, User user, int tarSsid) {
+//        this.batchSave(whSrc, user, "PULL_OUT");
+//        StorageSpace tarSs = storageSpaceService.findById(tarSsid).get();
+//        List<Warehouse> whTemp = whSrc.stream()
+//                .map(l -> new Warehouse(l.getPo(), tarSs, 0))
+//                .collect(Collectors.toList());
+//        this.batchSave(whTemp, user, "PUT_IN");
+
+        StorageSpace srcSs = storageSpaceService.findById(whSrc.get(0).getStorageSpace().getId()).get();
+        srcSs.setBlocked(false);
+        StorageSpace tarSs = storageSpaceService.findById(tarSsid).get();
+        tarSs.setBlocked(true);
+        storageSpaceService.saveAll(Arrays.asList(tarSs, srcSs));
+        whSrc.forEach(w -> w.setStorageSpace(tarSs));
+        repo.saveAll(whSrc);
+        List<WarehouseEvent> whE = whSrc.stream().map(w -> new WarehouseEvent(w, user, "CHANGE_AREA")).collect(Collectors.toList());
+        warehouseEventService.saveAll(whE);
+
+        whSrc.forEach(w -> {
+            if (w.getLineSchedule() != null) {
+                LineSchedule schedule = lineScheduleService.getOne(w.getLineSchedule().getId());
+                if (schedule != null) {
+                    schedule.setStorageSpace(w.getStorageSpace());
+                    lineScheduleService.save(schedule);
+                }
+            }
+        });
+    }
 }

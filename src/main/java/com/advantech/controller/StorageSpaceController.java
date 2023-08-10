@@ -73,7 +73,7 @@ public class StorageSpaceController {
     protected List<StorageSpace> findByIds(
             @RequestParam List<Integer> ids,
             HttpServletRequest request) {
-        return storageSpaceService.findAllById(ids);
+        return storageSpaceService.findAllByIdOrdered(ids);
     }
 
     @ResponseBody
@@ -84,6 +84,6 @@ public class StorageSpaceController {
             HttpServletRequest request) {
         List<Warehouse> whs = warehouseService.findByPoAndFloorAndFlag(po, floorService.getOne(floorId), 0);
         List<Integer> ids = whs.stream().map(l -> l.getStorageSpace().getId()).collect(Collectors.toList());
-        return storageSpaceService.findAllById(ids);
+        return storageSpaceService.findAllByIdOrdered(ids);
     }
 }

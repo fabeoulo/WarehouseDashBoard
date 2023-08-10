@@ -25,11 +25,13 @@ public interface StorageSpaceRepository extends JpaRepository<StorageSpace, Inte
     public List<StorageSpace> findByFloor(@Param("floor") Floor f);
 
     @Query("select s from StorageSpace s join s.storageSpaceGroup sg where sg.floor = :floor and s.blocked = FALSE order by sg.priority, s.priority")
-    public List<StorageSpace> findEmptyByFloor(@Param("floor") Floor f);    
-    
+    public List<StorageSpace> findEmptyByFloor(@Param("floor") Floor f);
+
+    @Query("SELECT s FROM StorageSpace s JOIN s.storageSpaceGroup g where s.id IN :id ORDER BY g.priority, s.priority")
+    public List<StorageSpace> findAllByIdOrdered(List<Integer> id);
+
 //    @Query("SELECT s FROM StorageSpace s JOIN FETCH s.storageSpaceGroup sg JOIN FETCH sg.floor f where s.id = :id")
 //    public StorageSpace findWithLazyById(@Param("id") Integer id);
-    
     public List<StorageSpace> findByStorageSpaceGroupOrderByName(StorageSpaceGroup group);
 
 }

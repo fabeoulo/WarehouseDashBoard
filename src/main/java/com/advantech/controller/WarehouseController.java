@@ -63,7 +63,7 @@ public class WarehouseController extends CrudController<Warehouse> {
     @ResponseBody
     @RequestMapping(value = "findBySsid", method = {RequestMethod.GET})
     protected List<Warehouse> findBySsid(HttpServletRequest request, @RequestParam List<Integer> ssIds) throws Exception {
-        return warehouseService.findByIdsAndFlag(ssIds, 0);
+        return warehouseService.findBySsidsAndFlag(ssIds, 0);
     }
 
     @Override
@@ -80,20 +80,20 @@ public class WarehouseController extends CrudController<Warehouse> {
     @RequestMapping(value = "batchCreate", method = {RequestMethod.POST})
     protected Map<String, Integer> batchInsert(@RequestBody Map<String, Object> requestData, BindingResult bindingResult) throws Exception {
         List<String> pos = (List<String>) requestData.get("pos");
-        int floorID = Integer.parseInt(requestData.get("floorID").toString());
+        int floorId = Integer.parseInt(requestData.get("floorId").toString());
+        int ssgId = Integer.parseInt(requestData.get("ssgId").toString());
 
-        Map<String, Integer> mymap = new HashMap<>();
-        List<StorageSpace> lss = storageSpaceService.findEmptyByFloor(floorService.getOne(floorID));
-        if (!lss.isEmpty()) {
-            StorageSpace ss = lss.get(0);
+        Map<String, Integer> ssMap = new HashMap<>();
+        StorageSpace ss = storageSpaceService.findFirstEmptyByFloorAndPriority(floorService.getOne(floorId), ssgId);
+        if (ss != null) {
             List<Warehouse> whs = pos.stream().map(l -> new Warehouse(l, ss, 0)).collect(Collectors.toList());
             User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-//            warehouseService.batchSave(whs, user, "PUT_IN");
+            warehouseService.batchSave(whs, user, "PUT_IN");
 
-            mymap.put("ssId", ss.getId());
-            mymap.put("ssgId", ss.getStorageSpaceGroup().getId());
+            ssMap.put("ssId", ss.getId());
+            ssMap.put("ssgId", ss.getStorageSpaceGroup().getId());
         }
-        return mymap;
+        return ssMap;
     }
 
     @Override
@@ -118,6 +118,16 @@ public class WarehouseController extends CrudController<Warehouse> {
     }
 
     @ResponseBody
+    @RequestMapping(value = "deleteFromStorageSpace", method = {RequestMethod.POST})
+    protected ResponseEntity deleteFromStorageSpace(@RequestParam int ssId) throws Exception {
+        List<Warehouse> whs = this.findBySsid(null, Arrays.asList(ssId));
+        whs.forEach(wh -> wh.setFlag(1));
+        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+        warehouseService.batchSave(whs, user, "PULL_OUT");
+        return serverResponse(SUCCESS_MESSAGE);
+    }
+
+    @ResponseBody
     @RequestMapping(value = "changeStorageSpace", method = {RequestMethod.POST})
     protected ResponseEntity changeStorageSpace(@RequestParam int warehouseId, @RequestParam int storageSpaceId) throws Exception {
         User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
@@ -128,4 +138,12 @@ public class WarehouseController extends CrudController<Warehouse> {
         return serverResponse(SUCCESS_MESSAGE);
     }
 
+    @ResponseBody
+    @RequestMapping(value = "batchChangeStorageSpace", method = {RequestMethod.POST})
+    protected ResponseEntity batchChangeStorageSpace(@RequestParam int srcSsid, @RequestParam int tarSsid) throws Exception {
+        List<Warehouse> whs = warehouseService.findBySsidsAndFlag(Arrays.asList(srcSsid), 0);
+        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+        warehouseService.batchChangeStorageSpace(whs, user,tarSsid);
+        return serverResponse(SUCCESS_MESSAGE);
+    }
 }

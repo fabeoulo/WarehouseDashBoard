@@ -613,7 +613,7 @@
                 <version>2.15</version>
                 <configuration>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
-                    <skipTests>true</skipTests>
+                    <skipTests>false</skipTests>
                 </configuration>
             </plugin>
             

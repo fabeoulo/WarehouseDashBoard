@@ -71,8 +71,10 @@
 <script>
     $(function () {
 
+        var ssButton = $(".storageButton").detach();
         var po = $(".po").detach();
         var area_select = $("#area-select");
+        var groupSel = $("#group-select");
         var dashboard = $("#dashboard>div");
         var floor_id = '${param.floor_id}';
         var group_id = '${param.group_id}';
@@ -136,7 +138,7 @@
                         var str = areas[i];
                         sel.append("<option value='" + str.id + "'>" + str.name + "</option>");
                     }
-//                    sel.hide();
+                    sel.hide();
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(xhr.responseText);
@@ -154,7 +156,7 @@
                 dataType: "json",
                 success: function (response) {
                     var areas = response;
-                    var sel = po.find(".storageSpace");
+                    var sel = ssButton.find(".storageSpace");
 
                     sel.append("<option value='-1'>請選擇線別</option>");
                     for (var i = 0; i < areas.length; i++) {
@@ -171,7 +173,6 @@
 
         function setStorageSpaceGroup() {
             var groupAreas = $("#nav-links");
-            var groupSel = $("#group-select");
 
             $.ajax({
                 type: "GET",
@@ -218,7 +219,7 @@
                                 "</label><a class='storage-faq' data-toggle='" + str.name + "'><span class='fa fa-map-marker-alt red' title='Location'></span></a><div id='po_content_" +
                                 str.id + "' class='po_content form-inline'></div></div>");
                     }
-                    getWarehouse();
+                    refreshTable();
 
                     //regist faq button event
                     $('body').on('click', '.storage-faq, #dashboard label', function () {
@@ -263,13 +264,20 @@
                     var areas = response;
                     for (var i = 0; i < areas.length; i++) {
                         var str = areas[i];
-                        dashboard.append("<div id='STORAGE_" + str.id + "' class='col-6 po-list'><label for='" + str.name + "' data-toggle='" + str.name + "'>" + str.name +
-                                "</label><a class='storage-faq' data-toggle='" + str.name + "'><span class='fa fa-map-marker-alt red' title='Location'></span></a><div id='po_content_" +
-                                str.id + "' class='po_content form-inline'></div></div>");
+                        dashboard.append("<div id='STORAGE_" + str.id + "' class='col-6 po-list form-inline'><label for='" + str.name + "' data-toggle='" + str.name + "'>" + str.name +
+                                "</label><a class='storage-faq' data-toggle='" + str.name + "'><span class='fa fa-map-marker-alt red' title='Location'></span></a></div>");
+
+                        var target = $("#STORAGE_" + str.id);
+                        var clone_ss = ssButton.clone();
+                        clone_ss.find(".ss-id").val(str.id);
+                        clone_ss.find(".ss-name").val(str.name);
+                        target.append(clone_ss);
+                        target.append("<div id='po_content_" + str.id + "' class='po_content form-inline col-12'></div>");
 
                         ss_id.push(str.id);
                     }
-                    getWarehouse();
+//                    ws.send("ADD");
+                    refreshTable();
 
                     //regist faq button event
                     $('body').on('click', '.storage-faq, #dashboard label', function () {
@@ -291,9 +299,11 @@
             if (ss_id.length > 0) {
                 url = "<c:url value="/WarehouseController/findBySsid" />";
                 reqData = {ssIds: ss_id.join(',')};
-            } else {
+            } else if (group_id) {
                 url = "<c:url value="/WarehouseController/findAll" />";
                 reqData = {storageSpaceGroupId: group_id};
+            } else {
+                return;
             }
 
             warehouseData = [];
@@ -335,6 +345,12 @@
             });
         }
 
+        function findStorageSpaceByIds() {
+            const url = "<c:url value="/StorageSpaceController/findByIds" />";
+            const byIds = {ids: ss_id.join(',')};
+            getStorageSpaceByData(url, byIds);
+        }
+
         function refreshTable() {
             $(".po_content").html("");
             getWarehouse();
@@ -350,6 +366,7 @@
         setPoModelMap();
 
         $("#add-po").click(function () {
+            $("#po_input").focus();
             var dataList = $("#poInsert-table tbody tr:not(:hidden)");
             var len = dataList.length;
             if (len < 1) {
@@ -367,7 +384,8 @@
                 }).get();//.get()方法將這個陣列從 jQuery 物件轉換為一般的 JavaScript 陣列
                 const myData = {
                     pos: pos,
-                    floorID: floor_id
+                    floorId: floor_id,
+                    ssgId: groupSel.val()
                 };
 
                 $.ajax({
@@ -379,18 +397,37 @@
                     success: function (response) {
                         var ssMap = new Map(Object.entries(response));
                         if (ssMap.has("ssId")) {
-                            /*** first view
-                             //                            $("#area-empty").val(ssMap.get("ssId"));
-                             //                            var storage_name = $("#area-empty option:selected").text();
-                             //                            $("#area-label").show().html(storage_name);****/
-
                             ss_id.push(ssMap.get("ssId"));
-                            const url = "<c:url value="/StorageSpaceController/findByIds" />";
-                            const thisData = {ids: ss_id.join(',')};
-                            getStorageSpaceByData(url, thisData);
+//                            const url = "<c:url value="/StorageSpaceController/findByIds" />";
+//                            const byIds = {ids: ss_id.join(',')};
+//                            getStorageSpaceByData(url, byIds);
+                            findStorageSpaceByIds();
                         } else {
                             alert("Fail. No space.");
                         }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(xhr.responseText);
+                    }
+                });
+            }
+        });
+
+        $(document).on("click", ".ss-pull-out", function () {
+            var id = $(this).parents(".storageButton").find(".ss-id").val();
+            var name = $(this).parents(".storageButton").find(".ss-name").val();
+            if (confirm("Confirm pull out " + name + " ?")) {
+                $.ajax({
+                    type: "POST",
+                    url: "<c:url value="/WarehouseController/deleteFromStorageSpace" />",
+                    data: {
+                        ssId: id
+                    },
+                    dataType: "html",
+                    success: function (response) {
+//                        console.log(response);
+//                        ws.send("REMOVE");
+                        refreshTable();
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         alert(xhr.responseText);
@@ -422,7 +459,7 @@
 
         $(document).on("click", ".change-area", function () {
             $(this).hide();
-            $(this).parent().find(".storageSpace").show();
+            $(this).parent().find(".storageSpace").show().focus();
         });
 
         $(document).on("focusout", ".storageSpace", function () {
@@ -431,28 +468,35 @@
         });
 
         $(document).on("change", ".storageSpace", function () {
-            var id = $(this).parents(".po").find(".data-id").val();
-            var data = warehouseData["id" + id];
-            var sel = $(this).val();
+            var ssid = $(this).parents(".storageButton").find(".ss-id").val();
+            var ssName = $(this).parents(".storageButton").find(".ss-name").val();
+//            var id = $(this).parents(".po").find(".data-id").val();
+//            var data = warehouseData["id" + id];
+            var tarSsid = $(this).val();
             var selText = $(this).children("option:selected").text();
 
-            if (sel == -1) {
+            if (tarSsid == -1) {
                 return false;
             }
 
-            if (confirm("Change area to " + selText + "?(" + data.po + ")")) {
+            if (confirm("Change area " + ssName + " to " + selText + "?")) {
 
                 $.ajax({
                     type: "POST",
-                    url: "<c:url value="/WarehouseController/changeStorageSpace" />",
+                    url: "<c:url value="/WarehouseController/batchChangeStorageSpace" />",
                     data: {
-                        warehouseId: id,
-                        storageSpaceId: sel
+                        srcSsid: ssid,
+                        tarSsid: tarSsid
                     },
                     dataType: "json",
                     success: function (response) {
                         alert("success");
-                        ws.send("ADD");
+//                        ws.send("ADD");
+                        var ss_id_local = ss_id;
+                        resetDashboard();
+                        ss_id = ss_id_local;
+                        ss_id.splice(ss_id.indexOf(Number(ssid)), 1,Number(tarSsid));
+                        findStorageSpaceByIds();
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         alert(xhr.responseText);
@@ -461,11 +505,10 @@
             }
         });
 
-        $("#po").on("keydown", function (e) {
+        $("#po_input").on("keydown", function (e) {
             const poVal = $(this).val().trim();
             /* ENTER PRESSED*/
             if (e.keyCode === 13 && poVal !== "") {
-//                resetPoInsertTable();
                 $(this).val("");
                 if (checkPoExist(poVal))
                     return;
@@ -479,9 +522,7 @@
                 addDetailRow();
             }
         });
-//        function resetPoInsertTable() {
-//            $("#area-label").hide();
-//        }
+
         function checkPoExist(poVal) {
             var isExist = false;
             $("#poInsert-table #inputPo").each(function (index) {
@@ -506,7 +547,7 @@
             }
         });
 
-        $("#po, #po_search").on("keyup change", function () {
+        $("#po_input, #po_search").on("keyup change", function () {
             $(this).val($(this).val().toUpperCase());
         });
 
@@ -516,11 +557,11 @@
                 $(this).select();
 
                 const url = "<c:url value="/StorageSpaceController/findByPo" />";
-                const thisData = {
+                const byPo = {
                     po: poSearch,
                     floorId: floor_id
                 };
-                getStorageSpaceByData(url, thisData);
+                getStorageSpaceByData(url, byPo);
             }
 
             var mysearchword = this.value.trim();
@@ -537,11 +578,10 @@
 
         $("#clear_search").click(function () {
             var search = $("#po_search");
-            search.val("");
-            search.trigger("keyup");
+            search.val("").trigger("keyup").select();
         });
 
-        $("#po").keypress(function (e) {
+        $("#po_input").keypress(function (e) {
             if (e.which == 13) {
 //                $("#add-po").trigger("click");
             }
@@ -553,8 +593,9 @@
             $(this).select();
         });
 
+        $("#po_input").focus();
         area_select.change(function () {
-            $("#po").focus();
+            $("#po_input").focus();
         });
 
         var ws;
@@ -595,6 +636,9 @@
                 setStorageSpace();
             }
         }
+        if (ws === undefined) {//|| ws.readyState !== WebSocket.OPEN
+            connectToServer();
+        }
     });
 </script>
 
@@ -622,15 +666,23 @@
             <div id="connectionStatus">Disconnected</div>
         </div>
 
+        <span class="storageButton">
+            <input type="hidden" value="" class="ss-id">
+            <input type="hidden" value="" class="ss-name">
+            <input type="button" class="ss-pull-out" value="Pull out" />
+            <input type="button" class="change-area" value="Change area" />
+            <select class="storageSpace"></select>
+        </span>
+
         <div class="po col-12">
             <div class="name"></div>
             <input type="hidden" value="" class="data-id">
             <input type="hidden" value="" class="data-po">
-            <div class="widget">
-                <input type="button" class="pull-out" value="Pull out" />
-                <input type="button" class="change-area" value="Change area" />
-                <select class="storageSpace"></select>
-            </div>
+            <!--            <div class="widget">
+                            <input type="button" class="pull-out" value="Pull out" />
+                            <input type="button" class="change-area" value="Change area" />
+                            <select class="storageSpace"></select>
+                        </div>-->
         </div>
 
         <div class="input-area col-12">
@@ -641,7 +693,7 @@
                     </td>
                     <td>
                         <div class="form-inline">
-                            <input type="text" id="po" placeholder="please insert your po" />
+                            <input type="text" id="po_input" placeholder="please insert your po" />
                             <input type="button" value="綁定" id="add-po" />
                         </div>
                     </td>
@@ -651,8 +703,7 @@
                         <label>儲位詳細</label>
                     </td>
                     <td>
-                        <select id="area-empty" ></select>
-                        <span id="area-label" class="highlight"></span>
+                        <select id="area-empty"></select>
                         <table id="poInsert-table" class="table table-striped">
                             <thead>
                                 <tr>

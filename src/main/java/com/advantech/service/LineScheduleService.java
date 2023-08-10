@@ -14,10 +14,13 @@ import com.advantech.model.StorageSpace;
 import com.advantech.model.Warehouse;
 import com.advantech.repo.LineScheduleRepository;
 import static com.google.common.base.Preconditions.checkState;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
@@ -175,36 +178,41 @@ public class LineScheduleService {
     }
 
     public void updateStatus(Warehouse w, LineScheduleStatus status) {
-        batchUpdateStatus(Arrays.asList(w), status);
-//        LineScheduleStatus onBoard = stateService.getOne(4);
-//        Floor f = getWarehouseFloor(w);
-//        LineSchedule schedule = this.findFirstByPoAndFloorAndLineScheduleStatusNot(w.getPo(), f, onBoard);
-//        if (schedule != null) {
-//            checkState(!(schedule.getLine() == null && status.getId() == 4), "Can't pull out when po's line is not setting");
-//            schedule.setLineScheduleStatus(status);
-//            if (status.getId() != 4) {
-//                schedule.setStorageSpace(w.getStorageSpace());
-//            }
-//            repo.save(schedule);
-//            if (w.getLineSchedule() == null) {
-//                w.setLineSchedule(schedule);
-//                warehouseService.save(w);
-//            }
-//        }
+        LineScheduleStatus onBoard = stateService.getOne(4);
+        Floor f = getWarehouseFloor(w);
+        LineSchedule schedule = this.findFirstByPoAndFloorAndLineScheduleStatusNot(w.getPo(), f, onBoard);
+        if (schedule != null) {
+            checkState(!(schedule.getLine() == null && status.getId() == 4), "Can't pull out when po's line is not setting");
+            schedule.setLineScheduleStatus(status);
+            if (status.getId() != 4) {
+                schedule.setStorageSpace(w.getStorageSpace());
+            }
+            repo.save(schedule);
+            if (w.getLineSchedule() == null) {
+                w.setLineSchedule(schedule);
+                warehouseService.save(w);
+            }
+        }
     }
 
     public void batchUpdateStatus(List<Warehouse> whs, LineScheduleStatus status) {
+        Floor f = getWarehouseFloor(whs.get(0));
+        List<String> pos = whs.stream().map(l -> l.getPo()).collect(Collectors.toList());
+        Map<String, List<Warehouse>> whMap = warehouseService.getActiveWhsByPoMap(pos, f, 0);
         LineScheduleStatus onBoard = stateService.getOne(4);
-        whs.stream().forEach(w -> {
-            Floor f = getWarehouseFloor(w);
-            LineSchedule schedule = this.findFirstByPoAndFloorAndLineScheduleStatusNot(w.getPo(), f, onBoard);
+        Map<String, LineSchedule> lsMap = this.getFirstByPoMap(pos, f, onBoard);
+
+        whs.forEach(w -> {
+            LineSchedule schedule = lsMap.getOrDefault(w.getPo(), null);
             if (schedule != null) {
-                checkState(!(schedule.getLine() == null && status.getId() == 4), "Can't pull out when po's line is not setting");
-                schedule.setLineScheduleStatus(status);
-                if (status.getId() != 4) {
+                List<Warehouse> samePoWhs = whMap.getOrDefault(w.getPo(), new ArrayList<>());
+//                checkState(!(schedule.getLine() == null && status.getId() == 4), "Can't pull out when po's line is not setting");
+                if (status.getId() != 4 || samePoWhs.isEmpty()) {
+                    schedule.setLineScheduleStatus(status);
                     schedule.setStorageSpace(w.getStorageSpace());
+                    repo.save(schedule);
                 }
-                repo.save(schedule);
+
                 if (w.getLineSchedule() == null) {
                     w.setLineSchedule(schedule);
                     warehouseService.save(w);
@@ -219,6 +227,21 @@ public class LineScheduleService {
 
     public LineSchedule findFirstByPoAndFloorAndLineScheduleStatusNot(String po, Floor f, LineScheduleStatus status) {
         return repo.findFirstByPoAndFloorAndLineScheduleStatusNot(po, f, status);
+    }
+
+    public List<LineSchedule> findByPosAndFloorAndLineScheduleStatusNot(List<String> pos, Floor floor, LineScheduleStatus status) {
+        return repo.findByPosAndFloorAndLineScheduleStatusNot(pos, floor, status);
+    }
+
+    public Map<String, LineSchedule> getFirstByPoMap(List<String> pos, Floor floor, LineScheduleStatus status) {
+        List<LineSchedule> l = repo.findByPosAndFloorAndLineScheduleStatusNot(pos, floor, status);
+        return l.stream().collect(Collectors.groupingBy(
+                LineSchedule::getPo,
+                Collectors.collectingAndThen(
+                        Collectors.toList(),
+                        list -> list.isEmpty() ? null : list.get(0)
+                )
+        ));
     }
 
     private Floor getWarehouseFloor(Warehouse w) {

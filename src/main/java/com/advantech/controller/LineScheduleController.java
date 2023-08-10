@@ -81,7 +81,7 @@ public class LineScheduleController extends CrudController<LineSchedule> {
     @RequestMapping(value = "findMap", method = {RequestMethod.GET})
     protected Map<String, String> findMap(
             @Valid DataTablesInput input,
-            @RequestParam(required = false) Integer floor_id,
+            @RequestParam Integer floor_id,
             HttpServletRequest request) throws Exception {
 
         List<LineSchedule> l = lineScheduleService.findByFloorIdAndOnBoardDateGreaterThan(floor_id, new DateTime().minusMonths(1).toDate());

@@ -132,9 +132,9 @@
                                                 </ul>-->
                         <a href="#sub1" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">拉料</a>
                         <ul class="collapse list-unstyled show" id="sub1">
-<!--                            <li>
-                                <a href="layout.jsp?content=warehouse&floor_id=6#">4F</a>
-                            </li>-->
+                            <!--                            <li>
+                                                            <a href="layout.jsp?content=warehouse&floor_id=6#">4F</a>
+                                                        </li>-->
                             <li>
                                 <a href="layout.jsp?content=warehouse&floor_id=1#">5F</a>
                             </li>
@@ -148,18 +148,18 @@
                                 <li>
                                     <a href="layout.jsp?content=warehouse&floor_id=5#">TEST_F</a>
                                 </li>
-                                <li>
-                                    <a href="layout.jsp?content=whPosition&floor_id=7#">7FDemo</a>
-                                </li>
                             </c:if>
+                            <li>
+                                <a href="layout.jsp?content=whPosition&floor_id=7#">7FDemo</a>
+                            </li>
                         </ul>
                     </li>
                     <li>
                         <a href="#sub2" class="dropdown-toggle" data-toggle="collapse" aria-expanded="true">備料</a>
                         <ul class="collapse list-unstyled show" id="sub2">
-<!--                            <li>
-                                <a href="layout.jsp?content=lineSchedule&floor_id=1#">5F</a>
-                            </li>-->
+                            <!--                            <li>
+                                                            <a href="layout.jsp?content=lineSchedule&floor_id=1#">5F</a>
+                                                        </li>-->
                             <li>
                                 <a href="layout.jsp?content=lineSchedule&floor_id=2#">6F</a>
                             </li>
@@ -168,8 +168,8 @@
                             </li>
                             <c:if test="${isAdmin}">
                                 <li>
-                                <a href="layout.jsp?content=lineSchedule&floor_id=5#">TEST_F</a>
-                            </li>
+                                    <a href="layout.jsp?content=lineSchedule&floor_id=5#">TEST_F</a>
+                                </li>
                             </c:if>
                         </ul>
                     </li>
