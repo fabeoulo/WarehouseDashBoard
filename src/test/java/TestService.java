@@ -10,12 +10,14 @@ import com.advantech.model.LineSchedule;
 import com.advantech.model.LineScheduleStatus;
 import com.advantech.model.StorageSpace;
 import com.advantech.model.StorageSpaceGroup;
+import com.advantech.model.Tags;
 import com.advantech.model.User;
 import com.advantech.model.Warehouse;
 import com.advantech.service.FloorService;
 import com.advantech.service.LineScheduleService;
 import com.advantech.service.LineScheduleStatusService;
 import com.advantech.service.StorageSpaceService;
+import com.advantech.service.TagsService;
 import com.advantech.service.UserService;
 import com.advantech.service.WarehouseService;
 import java.util.ArrayList;
@@ -65,6 +67,9 @@ public class TestService {
     @Autowired
     private StorageSpaceService storageSpaceService;
 
+    @Autowired
+    private TagsService tagsService;
+
     @Test
     @Transactional
     @Rollback(true)
@@ -82,9 +87,8 @@ public class TestService {
     @Rollback(false)
     public void testWarehouse() {
 
-        List<Warehouse> datas = warehouseService.findByPoAndFloorAndFlag("TGN000740ZA", floorService.getOne(7), 0);
-        HibernateObjectPrinter.print(datas);
-
+//        List<Warehouse> datas = warehouseService.findByPoAndFloorAndFlag("TGN000740ZA", floorService.getOne(7), 0);
+//        HibernateObjectPrinter.print(datas);
         //        List<Integer> ssids = Arrays.asList(153, 156);
         //        List<Warehouse> datas = warehouseService.findBySsidsAndFlag(ssids, 0);
         //        HibernateObjectPrinter.print(datas.get(3));
@@ -101,17 +105,6 @@ public class TestService {
 //            HibernateObjectPrinter.print(whmap.get(testS).size());
 //        }
 //        OK
-//        int ssgId = 28;
-//        List<StorageSpace> lss = storageSpaceService.findEmptyByFloor(floorService.getOne(7));
-//        Optional<StorageSpace> ss = lss.stream().filter(l -> l.getStorageSpaceGroup().getId() == ssgId).findFirst();
-//        StorageSpace ss = storageSpaceService.findFirstEmptyByFloorAndPriority(floorService.getOne(7), ssgId);
-//        if (ss != null) {
-//            Warehouse wh = new Warehouse("POPO809test", ss);
-//            List<Warehouse> datas = Arrays.asList(wh);
-//            User user = userService.findById(36).get();
-//            warehouseService.batchSave(datas, user, "PUT_IN");
-//        }
-//        OK
 //        List<Integer> ssIds = Arrays.asList(147);
 //        List<Warehouse> whs = warehouseService.findBySsidsAndFlag(ssIds, 0);
 //        whs.stream().forEach(wh -> wh.setFlag(1));
@@ -122,11 +115,18 @@ public class TestService {
 //    @Test
 //    @Transactional
 //    @Rollback(true)
+    public void testTagsService() {
+        List<Tags> ls = tagsService.findAll();
+        List<String> names = ls.stream().map(i -> i.getName()).collect(Collectors.toList());
+    }
+
+    @Test
+    @Transactional
+    @Rollback(true)
     public void testStorageSpaceService() {
 
 //        OK
-        List<StorageSpace> ss = storageSpaceService.findAllByIdOrdered(Arrays.asList(149, 151));
-
+//        List<StorageSpace> ss = storageSpaceService.findAllByIdOrdered(Arrays.asList(149, 151));
 //        StorageSpace ss = storageSpaceService.findById(148).get();
 //        HibernateObjectPrinter.print(ss);
 //        StorageSpaceGroup sg = ss.getStorageSpaceGroup();
@@ -141,11 +141,35 @@ public class TestService {
 //        HibernateObjectPrinter.print(ff);
 //        DataTablesInput input = new DataTablesInput();
 //        input.setLength(-1);
-    }
+//        OK
+//        int ssgId = 28;
+        List<Floor> f = floorService.findByIdIn(Arrays.asList(1,2,7));
+//        List<StorageSpace> lss = storageSpaceService.findEmptyByFloors(f);
+//        Optional<StorageSpace> ss = lss.stream().filter(l -> l.getStorageSpaceGroup().getId() == ssgId).findFirst();
+//        StorageSpace ss = storageSpaceService.findFirstEmptyByFloorAndPriority(floorService.getOne(7), ssgId);
+//        if (ss != null) {
+//            Warehouse wh = new Warehouse("POPO809test", ss);
+//            List<Warehouse> datas = Arrays.asList(wh);
+//            User user = userService.findById(36).get();
+//            warehouseService.batchSave(datas, user, "PUT_IN");
+//        }
 
-    @Test
-    @Transactional
-    @Rollback(true)
+//        OK
+        Map<String, List<StorageSpace>> m = storageSpaceService.findEmptyMapByFloors(f);
+        Map<String, Integer> m2 = m.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().size()
+                ));
+        HibernateObjectPrinter.print(m);
+        List<StorageSpace> l = (List<StorageSpace>) m.values().toArray()[0];
+        String florr = l.get(0).getStorageSpaceGroup().getFloor().getName();
+        HibernateObjectPrinter.print(l);
+    }
+//    @Test
+//    @Transactional
+//    @Rollback(true)
+
     public void testLlineScheduleService() {
 //        OK
         List<String> pos = Arrays.asList("TGN000740ZA", "TEST3", "");

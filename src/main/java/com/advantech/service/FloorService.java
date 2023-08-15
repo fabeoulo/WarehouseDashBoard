@@ -28,6 +28,10 @@ public class FloorService {
         return repo.findAll();
     }
 
+    public List<Floor> findByIdIn(List<Integer> ids) {
+        return repo.findByIdIn(ids);
+    }
+
     public Floor getOne(Integer id) {
         return repo.getOne(id);
     }

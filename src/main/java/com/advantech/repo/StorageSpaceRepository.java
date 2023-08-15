@@ -21,16 +21,23 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StorageSpaceRepository extends JpaRepository<StorageSpace, Integer> {
 
-    @Query("select s from StorageSpace s join s.storageSpaceGroup sg where sg.floor = :floor order by sg.priority")
+        @Query("SELECT s FROM StorageSpace s JOIN s.storageSpaceGroup sg "
+            + "WHERE sg.floor = :floor AND sg.enabled = 1 "
+            + "ORDER BY sg.priority, s.priority")
     public List<StorageSpace> findByFloor(@Param("floor") Floor f);
 
-    @Query("select s from StorageSpace s join s.storageSpaceGroup sg where sg.floor = :floor and s.blocked = FALSE order by sg.priority, s.priority")
-    public List<StorageSpace> findEmptyByFloor(@Param("floor") Floor f);
+    @Query("SELECT s FROM StorageSpace s JOIN s.storageSpaceGroup sg "
+            + "WHERE sg.floor IN ?1 AND sg.enabled = 1 AND s.blocked = FALSE "
+            + "ORDER BY sg.floor.id, sg.priority, s.priority")
+    public List<StorageSpace> findEmptyByFloors(List<Floor> f);
+//    public List<StorageSpace> findByStorageSpaceGroupFloorInAndBlockedFalseOrderByStorageSpaceGroupPriorityAscPriorityAsc(List<Floor> f);
 
-    @Query("SELECT s FROM StorageSpace s JOIN s.storageSpaceGroup g where s.id IN :id ORDER BY g.priority, s.priority")
+    @Query("SELECT s FROM StorageSpace s JOIN s.storageSpaceGroup sg "
+            + "WHERE s.id IN ?1 AND sg.enabled = 1 "
+            + "ORDER BY sg.priority, s.priority")
     public List<StorageSpace> findAllByIdOrdered(List<Integer> id);
 
-//    @Query("SELECT s FROM StorageSpace s JOIN FETCH s.storageSpaceGroup sg JOIN FETCH sg.floor f where s.id = :id")
+//    @Query("SELECT s FROM StorageSpace s JOIN FETCH s.storageSpaceGroup sg JOIN FETCH sg.floor f WHERE s.id = :id")
 //    public StorageSpace findWithLazyById(@Param("id") Integer id);
     public List<StorageSpace> findByStorageSpaceGroupOrderByName(StorageSpaceGroup group);
 

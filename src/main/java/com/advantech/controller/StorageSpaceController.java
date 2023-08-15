@@ -12,8 +12,10 @@ import com.advantech.model.Warehouse;
 import com.advantech.service.FloorService;
 import com.advantech.service.StorageSpaceService;
 import com.advantech.service.WarehouseService;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -55,9 +57,12 @@ public class StorageSpaceController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "findEmptyByFloor", method = {RequestMethod.GET})
-    protected List<StorageSpace> findEmptyByFloor(@ModelAttribute Floor f) {
-        return storageSpaceService.findEmptyByFloor(f);
+    @RequestMapping(value = "findEmptyByFloors", method = {RequestMethod.GET})
+    protected Map<String, List<StorageSpace>> findEmptyByFloors(
+            @RequestParam List<Integer> ids,
+            HttpServletRequest request) {
+        List<Floor> floors = floorService.findByIdIn(ids);
+        return storageSpaceService.findEmptyMapByFloors(floors);
     }
 
     @ResponseBody

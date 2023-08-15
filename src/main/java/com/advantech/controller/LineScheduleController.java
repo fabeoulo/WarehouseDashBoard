@@ -79,7 +79,7 @@ public class LineScheduleController extends CrudController<LineSchedule> {
 
     @ResponseBody
     @RequestMapping(value = "findMap", method = {RequestMethod.GET})
-    protected Map<String, String> findMap(
+    protected Map<String, String> findPoModelMap(
             @Valid DataTablesInput input,
             @RequestParam Integer floor_id,
             HttpServletRequest request) throws Exception {

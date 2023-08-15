@@ -9,7 +9,10 @@ import com.advantech.webservice.port.PartMappingVarietyQueryPort;
 import com.advantech.webservice.root.PartMappingVarietyQueryRoot;
 import com.advantech.webservice.unmarshallclass.PartMappingVariety;
 import com.advantech.repo.LineScheduleRepository;
+import com.advantech.webservice.port.WaGetTagPort;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -41,6 +44,9 @@ public class TestWebservice {
     @Autowired
     private WorkDateUtils workDateUtils;
 
+    @Autowired
+    private WaGetTagPort waGetTagPort;
+
 //    @Test//245
     @Transactional
     @Rollback(true)
@@ -68,4 +74,9 @@ public class TestWebservice {
         return sb.toString();
     }
 
+    @Test
+    public void testWaGetTagPort() throws Exception {
+        Map<String, Integer> map = waGetTagPort.getMapByTagnames(Arrays.asList("Wh_39:DI_00,Wh_39:DI_01,Wh_39:DI_02"));
+        String js = waGetTagPort.getJsonString(Arrays.asList("Sensor_164:DI_01"));
+    }
 }

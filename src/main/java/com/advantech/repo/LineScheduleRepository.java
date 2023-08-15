@@ -28,8 +28,8 @@ public interface LineScheduleRepository extends JpaRepository<LineSchedule, Inte
     public LineSchedule findFirstByPoAndLineScheduleStatusNot(String po, LineScheduleStatus status);
 
     public LineSchedule findFirstByPoAndFloorAndLineScheduleStatusNot(String po, Floor f, LineScheduleStatus status);
-    
-    @Query("select l from LineSchedule l where l.floor = :f and l.po IN :pos and l.lineScheduleStatus != :status")
+
+    @Query("select l from LineSchedule l where l.floor = ?2 and l.po IN ?1 and l.lineScheduleStatus != ?3")
     public List<LineSchedule> findByPosAndFloorAndLineScheduleStatusNot(List<String> pos, Floor f, LineScheduleStatus status);
 
     @Query(value = "{CALL usp_GetPrepareSchedule(:sD)}", nativeQuery = true)

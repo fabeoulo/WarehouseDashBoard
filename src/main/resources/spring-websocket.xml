@@ -10,12 +10,14 @@
 
     <websocket:handlers>
         <websocket:mapping path="/myHandler" handler="myHandler"/>
+        <websocket:mapping path="/tagHandler" handler="tagHandler"/>
         <websocket:handshake-interceptors>
             <bean class="com.advantech.websocket.WebSocketInterceptor"/>
         </websocket:handshake-interceptors>
     </websocket:handlers>
 
     <bean id="myHandler" class="com.advantech.websocket.ExampleHandler"/>
+    <bean id="tagHandler" class="com.advantech.websocket.TagHandler"/>
     
     <!-- /app:客户端向服务端 发送的前缀 -->
     <websocket:message-broker>

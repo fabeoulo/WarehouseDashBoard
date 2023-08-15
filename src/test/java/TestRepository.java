@@ -74,7 +74,7 @@ public class TestRepository {
     private LineScheduleRepository lineScheduleRepo;
 
     @Autowired
-    private LineScheduleStatusRepository statusRepo;
+    private LineScheduleStatusRepository lineScheduleStatusRepo;
 
 //    @Test
     @Transactional
@@ -145,9 +145,6 @@ public class TestRepository {
 
     }
 
-    @Autowired
-    private LineScheduleStatusRepository lineScheduleStatusRepo;
-
 //    @Test
     @Transactional
     @Rollback(false)
@@ -172,7 +169,7 @@ public class TestRepository {
     public void testLineScheduleStatus2() {
 //        DateTime sD = new DateTime().withHourOfDay(0);
 //        DateTime eD = new DateTime().withHourOfDay(23);
-//        LineScheduleStatus onBoard = statusRepo.getOne(3);
+//        LineScheduleStatus onBoard = lineScheduleStatusRepo.getOne(3);
 //        LineSchedule schedule = this.lineScheduleRepo
 //                .findFirstByPoAndOnBoardDateBetweenAndLineScheduleStatusNot("PCJ6112ZA", sD.toDate(), eD.toDate(), onBoard);
 //        HibernateObjectPrinter.print(schedule);
@@ -183,8 +180,8 @@ public class TestRepository {
     @Rollback(true)
     public void testAutoSetLineScheduleStatus() {
         List<Floor> floors = floorRepo.findAll();
-        LineScheduleStatus defaultStatus = statusRepo.getOne(1);
-        LineScheduleStatus onboard = statusRepo.getOne(4);
+        LineScheduleStatus defaultStatus = lineScheduleStatusRepo.getOne(1);
+        LineScheduleStatus onboard = lineScheduleStatusRepo.getOne(4);
 
         DateTime tomorrow = new DateTime().plusDays(1).withTime(0, 0, 0, 0);
 
@@ -228,7 +225,7 @@ public class TestRepository {
     @Transactional
     @Rollback(true)
     public void testfindByLineScheduleStatusNotAndOnBoardDateBetween(){
-//        LineScheduleStatus onboard = statusRepo.getOne(4);
+//        LineScheduleStatus onboard = lineScheduleStatusRepo.getOne(4);
 //        DateTime sD = new DateTime().withHourOfDay(0).withMinuteOfHour(0);
 //        DateTime eD = new DateTime().withHourOfDay(23).withMinuteOfHour(59);
 //

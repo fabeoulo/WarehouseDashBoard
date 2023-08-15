@@ -37,7 +37,7 @@
                         <a href="<c:url value="/pages/layout.jsp?content=warehouse&floor_id=6#" />">4F首頁</a>
                     </li>
 --%>
-                    <li>
+<!--                    <li>
                         <a href="<c:url value="/pages/layout.jsp?content=warehouse&floor_id=1#" />">5F首頁</a>
                     </li>
                     <li>
@@ -45,9 +45,9 @@
                     </li>
                     <li>
                         <a href="<c:url value="/pages/layout.jsp?content=warehouse&floor_id=3#" />">7F首頁</a>
-                    </li>
+                    </li>-->
                     <li>
-                        <a href="<c:url value="/pages/layout.jsp?content=whPosition&floor_id=7#" />">7FDemo</a>
+                        <a href="<c:url value="/pages/layout.jsp?content=whPosition&map=map_storagespace&floor_id=7#" />">7FDemo</a>
                     </li>
                 </ul>
             </div>

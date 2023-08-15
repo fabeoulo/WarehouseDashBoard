@@ -78,13 +78,13 @@ public class WarehouseController extends CrudController<Warehouse> {
 
     @ResponseBody
     @RequestMapping(value = "batchCreate", method = {RequestMethod.POST})
-    protected Map<String, Integer> batchInsert(@RequestBody Map<String, Object> requestData, BindingResult bindingResult) throws Exception {
-        List<String> pos = (List<String>) requestData.get("pos");
-        int floorId = Integer.parseInt(requestData.get("floorId").toString());
-        int ssgId = Integer.parseInt(requestData.get("ssgId").toString());
+    protected Map<String, Integer> batchInsert(@RequestBody Map<String, Object> dataMap, BindingResult bindingResult) throws Exception {
+        List<String> pos = (List<String>) dataMap.get("pos");
+        int floorId = Integer.parseInt(dataMap.get("floorId").toString());
+        int ssgId = Integer.parseInt(dataMap.get("ssgId").toString());
 
         Map<String, Integer> ssMap = new HashMap<>();
-        StorageSpace ss = storageSpaceService.findFirstEmptyByFloorAndPriority(floorService.getOne(floorId), ssgId);
+        StorageSpace ss = storageSpaceService.findFirstEmptyByFloorAndSsg(floorService.getOne(floorId), ssgId);
         if (ss != null) {
             List<Warehouse> whs = pos.stream().map(l -> new Warehouse(l, ss, 0)).collect(Collectors.toList());
             User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();

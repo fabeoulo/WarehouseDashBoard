@@ -7,13 +7,20 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
+<c:set var="userSitefloor" value="${param.floor_id}" />
+<c:if test="${(userSitefloor == null) || (userSitefloor == '' || userSitefloor < 1 || userSitefloor > 7)}">
+    <c:redirect url="index.jsp" />
+</c:if>
 <title>${initParam.pageTitle}</title>
+
+<link rel="shortcut icon" href="<c:url value="/images/favicon.ico" />"/>
+<link rel="stylesheet" href="<c:url value="/libs/datatables.net-dt/jquery.dataTables.css" />" />
 
 <script src="<c:url value="/libs/jQuery/jquery.js" />"></script> 
 <script src="<c:url value="/libs/bootstrap/bootstrap.js" />"></script>
 <script src="<c:url value="/libs/mobile-detect/mobile-detect.min.js" />"></script>
-
 <script src="<c:url value="/libs/block-ui/jquery.blockUI.js" />"></script>
+<script src="<c:url value="/libs/datatables.net/jquery.dataTables.js" />"></script>
 
 <style>
     #dashboard >  .po-list{
@@ -65,10 +72,46 @@
         stroke:;
         stroke-opacity:0.50
     }
-
+    .noBorder {
+        border: none;
+    }
 </style>
 
+<!-- used for ifrmae jsp-->
 <script>
+    function testClick() {
+//        var groupSel = $("#group-select");
+//        var val = groupSel.val();
+        console.log("val");
+    }
+</script>
+
+<script>
+    $(document).ajaxSend(function () {
+        block();
+    });
+    $(document).ajaxComplete(function () {
+        $.unblockUI();
+    });
+    function block() {
+        $.blockUI({
+            css: {
+                border: 'none',
+                padding: '15px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: .5,
+                color: '#fff'
+            },
+            fadeIn: 0,
+            overlayCSS: {
+                backgroundColor: '#FFFFFF',
+                opacity: .3
+            }
+        });
+    }
+
     $(function () {
 
         var ssButton = $(".storageButton").detach();
@@ -81,32 +124,32 @@
         var warehouseData = [];
         var poModelMap = new Map();
         var ss_id = [];
+        const allFloorIds = [1, 2, 7];
 
-        $(document).ajaxSend(function () {
-            block();//Block the screen when ajax is sending, Prevent form submit repeatly.
-        });
-        $(document).ajaxComplete(function () {
-            $.unblockUI();//Unblock the ajax when success
-        });
-
-        function block() {
-            $.blockUI({
-                css: {
-                    border: 'none',
-                    padding: '15px',
-                    backgroundColor: '#000',
-                    '-webkit-border-radius': '10px',
-                    '-moz-border-radius': '10px',
-                    opacity: .5,
-                    color: '#fff'
-                },
-                fadeIn: 0,
-                overlayCSS: {
-                    backgroundColor: '#FFFFFF',
-                    opacity: .3
+        var floorDtComfig = {
+            dom: 'rt',
+            ordering: false,
+            "ajax": {
+                type: "GET",
+                url: "<c:url value="/StorageSpaceController/findEmptyByFloors" />",
+                "data": {ids: allFloorIds.join(',')},
+                dataType: "json",
+                "dataSrc": function (json) {
+                    var ss_empty_map = new Map(Object.entries(json));
+                    var obj2 = [];
+                    ss_empty_map.forEach((value, key) => {
+                        var areas = {floorName: key, emptyCount: value.length};
+                        obj2.push(areas);
+                    });
+                    return obj2;
                 }
-            });
-        }
+            },
+            "columns": [
+                {data: "floorName", title: "樓層"},
+                {data: "emptyCount", title: "空儲位"}
+            ]
+        };
+        var floorTable = $('#floorSs').DataTable(floorDtComfig);
 
         function setPoModelMap() {
             $.ajax({
@@ -128,17 +171,19 @@
         function setStorageSpaceEmptyOptions() {
             $.ajax({
                 type: "GET",
-                url: "<c:url value="/StorageSpaceController/findEmptyByFloor" />",
-                data: {id: floor_id},
+                url: "<c:url value="/StorageSpaceController/findEmptyByFloors" />",
+                data: {ids: floor_id},
                 dataType: "json",
                 success: function (response) {
-                    var areas = response;
-                    var sel = $("#area-empty");
-                    for (var i = 0; i < areas.length; i++) {
-                        var str = areas[i];
-                        sel.append("<option value='" + str.id + "'>" + str.name + "</option>");
-                    }
-                    sel.hide();
+                    var ss_empty_map = new Map(Object.entries(response));
+                    var sel = $("#area-empty").hide();
+                    ss_empty_map.forEach((value, key) => {
+                        var areas = value;
+                        for (var i = 0; i < areas.length; i++) {
+                            var str = areas[i];
+                            sel.append("<option value='" + str.id + "'>" + str.name + "</option>");
+                        }
+                    });
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(xhr.responseText);
@@ -156,14 +201,13 @@
                 dataType: "json",
                 success: function (response) {
                     var areas = response;
-                    var sel = ssButton.find(".storageSpace");
+                    var sel = ssButton.find(".storageSpace").hide();
 
                     sel.append("<option value='-1'>請選擇線別</option>");
                     for (var i = 0; i < areas.length; i++) {
                         var str = areas[i];
                         sel.append("<option value='" + str.id + "'>" + str.name + "</option>");
                     }
-                    sel.hide();
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(xhr.responseText);
@@ -185,12 +229,12 @@
                     var groups = response;
                     for (var i = 0; i < groups.length; i++) {
                         var str = groups[i];
-                        var content = "";
-                        content += "<li class='nav-item'>";
-                        content += "<a class='nav-link" + (group_id != null && group_id == str.id ? " active" : "") +
-                                "' href='layout.jsp?content=whPosition&group_id=" + str.id + "&floor_id=" + floor_id + "#'>AREA " + str.name + "</a>";
-                        content += "</li>";
-                        groupAreas.append(content);
+//                        var content = "";
+//                        content += "<li class='nav-item'>";
+//                        content += "<a class='nav-link" + (group_id != null && group_id == str.id ? " active" : "") +
+//                                "' href='layout.jsp?content=whPosition&map=map_storagespace&group_id=" + str.id + "&floor_id=" + floor_id + "#'>AREA " + str.name + "</a>";
+//                        content += "</li>";
+//                        groupAreas.append(content);
 
                         groupSel.append("<option value='" + str.id + "'>" + str.name + "</option>");
                     }
@@ -253,45 +297,34 @@
 
         }
 
-        function getStorageSpaceByData(url, data) {
-            $.ajax({
-                type: "GET",
-                url: url,
-                data: data,
-                dataType: "json",
-                success: function (response) {
-                    resetDashboard();
-                    var areas = response;
-                    for (var i = 0; i < areas.length; i++) {
-                        var str = areas[i];
-                        dashboard.append("<div id='STORAGE_" + str.id + "' class='col-6 po-list form-inline'><label for='" + str.name + "' data-toggle='" + str.name + "'>" + str.name +
-                                "</label><a class='storage-faq' data-toggle='" + str.name + "'><span class='fa fa-map-marker-alt red' title='Location'></span></a></div>");
+        var dashboardOk = function (response) {
+            resetDashboard();
+            var areas = response;
+            for (var i = 0; i < areas.length; i++) {
+                var str = areas[i];
+                dashboard.append("<div id='STORAGE_" + str.id + "' class='col-6 po-list form-inline'><label for='" + str.name + "' data-toggle='" + str.name + "'>" + str.name +
+                        "</label><a class='storage-faq' data-toggle='" + str.name + "'><span class='fa fa-map-marker-alt red' title='Location'></span></a></div>");
 
-                        var target = $("#STORAGE_" + str.id);
-                        var clone_ss = ssButton.clone();
-                        clone_ss.find(".ss-id").val(str.id);
-                        clone_ss.find(".ss-name").val(str.name);
-                        target.append(clone_ss);
-                        target.append("<div id='po_content_" + str.id + "' class='po_content form-inline col-12'></div>");
+                var target = $("#STORAGE_" + str.id);
+                var clone_ss = ssButton.clone();
+                clone_ss.find(".ss-id").val(str.id);
+                clone_ss.find(".ss-name").val(str.name);
+                target.append(clone_ss);
+                target.append("<div id='po_content_" + str.id + "' class='po_content form-inline col-12'></div>");
 
-                        ss_id.push(str.id);
-                    }
+                ss_id.push(str.id);
+            }
 //                    ws.send("ADD");
-                    refreshTable();
+            refreshTable();
 
-                    //regist faq button event
-                    $('body').on('click', '.storage-faq, #dashboard label', function () {
-                        var labelName = $(this).attr("data-toggle");
-                        var target = $("#imagemodal #polygon-" + labelName);
-                        highlightSelectArea(target);
-                        $('#imagemodal').modal('show');
-                    });
-
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert(xhr.responseText);
-                }
+            //regist faq button event
+            $('body').on('click', '.storage-faq, #dashboard label', function () {
+                var labelName = $(this).attr("data-toggle");
+                var target = $("#imagemodal #polygon-" + labelName);
+                highlightSelectArea(target);
+                $('#imagemodal').modal('show');
             });
+
         }
 
         function getWarehouse() {
@@ -337,7 +370,6 @@
                         }
                         target.append(clone_po);
                     }
-                    $("input, select").addClass("form-control");
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(xhr.responseText);
@@ -346,14 +378,24 @@
         }
 
         function findStorageSpaceByIds() {
-            const url = "<c:url value="/StorageSpaceController/findByIds" />";
-            const byIds = {ids: ss_id.join(',')};
-            getStorageSpaceByData(url, byIds);
+            $.ajax({
+                type: "GET",
+                url: "<c:url value="/StorageSpaceController/findByIds" />",
+                data: {ids: ss_id.join(',')},
+                dataType: "json",
+                success: dashboardOk,
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.responseText);
+                }
+            });
         }
 
+        $("input, select").addClass("form-control");
         function refreshTable() {
             $(".po_content").html("");
             getWarehouse();
+            floorTable.ajax.reload();
+            $("input, select").addClass("form-control");
         }
 
         function resetDashboard() {
@@ -361,9 +403,24 @@
             ss_id = [];
         }
 
-        setStorageSpaceEmptyOptions();
+//        setStorageSpaceEmptyOptions();
         setStorageSpaceModOptions();
         setPoModelMap();
+
+        $("#all-pos").click(function () {
+            $.ajax({
+                type: "GET",
+                url: "<c:url value="/StorageSpaceController/findByFloor" />",
+                data: {
+                    id: floor_id
+                },
+                dataType: "json",
+                success: dashboardOk,
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.responseText);
+                }
+            });
+        });
 
         $("#add-po").click(function () {
             $("#po_input").focus();
@@ -398,9 +455,6 @@
                         var ssMap = new Map(Object.entries(response));
                         if (ssMap.has("ssId")) {
                             ss_id.push(ssMap.get("ssId"));
-//                            const url = "<c:url value="/StorageSpaceController/findByIds" />";
-//                            const byIds = {ids: ss_id.join(',')};
-//                            getStorageSpaceByData(url, byIds);
                             findStorageSpaceByIds();
                         } else {
                             alert("Fail. No space.");
@@ -492,10 +546,7 @@
                     success: function (response) {
                         alert("success");
 //                        ws.send("ADD");
-                        var ss_id_local = ss_id;
-                        resetDashboard();
-                        ss_id = ss_id_local;
-                        ss_id.splice(ss_id.indexOf(Number(ssid)), 1,Number(tarSsid));
+                        ss_id.splice(ss_id.indexOf(Number(ssid)), 1, Number(tarSsid));
                         findStorageSpaceByIds();
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
@@ -556,12 +607,19 @@
             if (e.keyCode === 13 && poSearch !== "") {
                 $(this).select();
 
-                const url = "<c:url value="/StorageSpaceController/findByPo" />";
-                const byPo = {
-                    po: poSearch,
-                    floorId: floor_id
-                };
-                getStorageSpaceByData(url, byPo);
+                $.ajax({
+                    type: "GET",
+                    url: "<c:url value="/StorageSpaceController/findByPo" />",
+                    data: {
+                        po: poSearch,
+                        floorId: floor_id
+                    },
+                    dataType: "json",
+                    success: dashboardOk,
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(xhr.responseText);
+                    }
+                });
             }
 
             var mysearchword = this.value.trim();
@@ -630,17 +688,22 @@
         }
 
         setStorageSpaceGroup();
-        if (group_id) {
-            connectToServer();
-            if (ws != null) {
-                setStorageSpace();
-            }
-        }
+//        if (group_id) {
+//            connectToServer();
+//            if (ws != null) {
+//                setStorageSpace();
+//            }
+//        }
         if (ws === undefined) {//|| ws.readyState !== WebSocket.OPEN
             connectToServer();
         }
     });
 </script>
+
+
+<span class="col-md-12 ">
+    <iframe id="iframe1" style='width:100%; height:550px' frameborder="0" scrolling="no" src="map_storagespace_.jsp?sitefloor=${userSitefloor}" webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
+</span>
 
 <div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -662,7 +725,8 @@
             </ul>
         </div>
 
-        <div class="col-12">
+        <div class="col-12 form-inline">
+            <input type="button" value="Display all" id="all-pos" />
             <div id="connectionStatus">Disconnected</div>
         </div>
 
@@ -758,3 +822,11 @@
 
     </div>
 </div>
+<span class="col-md-3 offset-md-1 noBorder">
+    <table id="floorSs"  cellspacing="10" class="table table-bordered"></table>
+</span>
+
+<!--
+<span class="col-md-12" id="check">
+<%--<c:import url="${param.map}.jsp" />--%> 
+</span>>-->

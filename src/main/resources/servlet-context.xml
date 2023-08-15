@@ -174,16 +174,26 @@
         </property>
     </bean>
     
+    <!--M3 WebService port-->
     <bean id="webServiceTemplate" class="org.springframework.ws.client.core.WebServiceTemplate">
         <constructor-arg ref="soapMessageFactory"/>
         <property name="marshaller" ref="marshaller" />
         <property name="unmarshaller" ref="marshaller" />
-        <!--<property name="defaultUri" value="http://172.20.131.245/auto_testing_service/Service.asmx?WSDL"/>-->
         <property name="defaultUri" value="http://172.20.131.245/FIMPWS_MS_EXT/SFIS_WS.asmx"/>
     </bean>
     
     <!--regist for WsClient.class use, -->
     <bean id="objectFactory" class="org.tempuri.ObjectFactory" />
+        
+    <!--WaWebService port-->    
+    <bean id="waGetTagPort" class="com.advantech.webservice.port.WaGetTagPort" parent="webAccess">
+        <property name="urlGetTagValue" value="http://172.20.128.235/WaWebService/Json/GetTagValue/DongHuSystem" />
+    </bean>
+                        
+    <bean id="webAccess" class="com.advantech.webservice.WebAccess">
+        <property name="username" value="admin" />
+        <property name="password" value=""/>
+    </bean>
     
     <!--other import-->
 

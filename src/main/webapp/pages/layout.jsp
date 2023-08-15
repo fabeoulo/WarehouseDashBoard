@@ -111,74 +111,57 @@
                 </div>
 
                 <div class="sidebar-header">
-                    <h3>拉備料儲區</h3>
-                    <h3>定位系統</h3>
+                    <h3>拉備料儲區<br>定位系統2.0</h3>
                 </div>
 
                 <ul class="list-unstyled components">
                     <!--<p>Dummy Heading</p>-->
                     <li class="active">
-                        <!--<a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Home</a>-->
-                        <!--                        <ul class="collapse list-unstyled" id="homeSubmenu">
-                                                    <li>
-                                                        <a href="#">Home 1</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#">Home 2</a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#">Home 3</a>
-                                                    </li>
-                                                </ul>-->
                         <a href="#sub1" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">拉料</a>
                         <ul class="collapse list-unstyled show" id="sub1">
                             <!--                            <li>
                                                             <a href="layout.jsp?content=warehouse&floor_id=6#">4F</a>
                                                         </li>-->
-                            <li>
-                                <a href="layout.jsp?content=warehouse&floor_id=1#">5F</a>
-                            </li>
-                            <li>
-                                <a href="layout.jsp?content=warehouse&floor_id=2#">6F</a>
-                            </li>
-                            <li>
-                                <a href="layout.jsp?content=warehouse&floor_id=3#">7F</a>
-                            </li>
                             <c:if test="${isAdmin}">
+                                <li>
+                                    <a href="layout.jsp?content=warehouse&floor_id=1#">5F</a>
+                                </li>
+                                <li>
+                                    <a href="layout.jsp?content=warehouse&floor_id=2#">6F</a>
+                                </li>
+                                <li>
+                                    <a href="layout.jsp?content=warehouse&floor_id=3#">7F</a>
+                                </li>
                                 <li>
                                     <a href="layout.jsp?content=warehouse&floor_id=5#">TEST_F</a>
                                 </li>
                             </c:if>
                             <li>
-                                <a href="layout.jsp?content=whPosition&floor_id=7#">7FDemo</a>
+                                <a href="layout.jsp?content=whPosition&map=map_storagespace&floor_id=7#">7FDemo</a>
                             </li>
                         </ul>
                     </li>
-                    <li>
-                        <a href="#sub2" class="dropdown-toggle" data-toggle="collapse" aria-expanded="true">備料</a>
-                        <ul class="collapse list-unstyled show" id="sub2">
-                            <!--                            <li>
-                                                            <a href="layout.jsp?content=lineSchedule&floor_id=1#">5F</a>
-                                                        </li>-->
-                            <li>
-                                <a href="layout.jsp?content=lineSchedule&floor_id=2#">6F</a>
-                            </li>
-                            <li>
-                                <a href="layout.jsp?content=lineSchedule&floor_id=3#">7F</a>
-                            </li>
-                            <c:if test="${isAdmin}">
+                    <c:if test="${isAdmin}">
+                        <li>
+                            <a href="#sub2" class="dropdown-toggle" data-toggle="collapse" aria-expanded="true">備料</a>
+                            <ul class="collapse list-unstyled show" id="sub2">
+                                <!--                            <li>
+                                                                <a href="layout.jsp?content=lineSchedule&floor_id=1#">5F</a>
+                                                            </li>-->
                                 <li>
-                                    <a href="layout.jsp?content=lineSchedule&floor_id=5#">TEST_F</a>
+                                    <a href="layout.jsp?content=lineSchedule&floor_id=2#">6F</a>
                                 </li>
-                            </c:if>
-                        </ul>
-                    </li>
-                    <!--                    <li>
-                                            <a href="#">Portfolio</a>
-                                        </li>
-                                        <li>
-                                            <a href="#">Contact</a>
-                                        </li>-->
+                                <li>
+                                    <a href="layout.jsp?content=lineSchedule&floor_id=3#">7F</a>
+                                </li>
+                                <c:if test="${isAdmin}">
+                                    <li>
+                                        <a href="layout.jsp?content=lineSchedule&floor_id=5#">TEST_F</a>
+                                    </li>
+                                </c:if>
+                            </ul>
+                        </li>
+                    </c:if>
                     <li>
                         <a href="<c:url value="http://172.20.128.223/SAP/Login.aspx " />">拉備料系統</a>
                     </li>
@@ -232,6 +215,7 @@
                     <div class="row">
                         <c:catch var="e">
                             <c:import url="${param.content}.jsp" />
+                            <%--<c:import url="${param.map}.jsp" />--%>
                         </c:catch>
                         <c:if test="${!empty e}">
                             Error: page not found
@@ -239,13 +223,12 @@
                         </c:if>
                     </div>
                 </div>
+
+                <!-- Dark Overlay element -->
+                <div class="overlay"></div>
+
+                <div id="gotop">˄</div>
             </div>
-
-            <!-- Dark Overlay element -->
-            <div class="overlay"></div>
-
-            <div id="gotop">˄</div>
-        </div>
     </body>
 </html>
 
