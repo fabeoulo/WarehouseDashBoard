@@ -21,7 +21,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StorageSpaceRepository extends JpaRepository<StorageSpace, Integer> {
 
-        @Query("SELECT s FROM StorageSpace s JOIN s.storageSpaceGroup sg "
+    @Query("SELECT s FROM StorageSpace s JOIN s.storageSpaceGroup sg "
             + "WHERE sg.floor = :floor AND sg.enabled = 1 "
             + "ORDER BY sg.priority, s.priority")
     public List<StorageSpace> findByFloor(@Param("floor") Floor f);

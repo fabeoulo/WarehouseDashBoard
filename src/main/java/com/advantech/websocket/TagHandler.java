@@ -4,7 +4,12 @@
  */
 package com.advantech.websocket;
 
+import com.advantech.job.PollingTags;
+import com.advantech.model.StorageSpace;
 import com.advantech.model.Tags;
+import com.advantech.model.Warehouse;
+import com.advantech.service.FloorService;
+import com.advantech.service.StorageSpaceService;
 import com.advantech.service.TagsService;
 import com.advantech.webservice.port.WaGetTagPort;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,8 +46,6 @@ public class TagHandler extends BasicHandler implements WebSocketHandler {
 
     private static boolean isJobScheduled = false;
 
-    protected final Set<WebSocketSession> sessions = Collections.synchronizedSet(new HashSet<>());
-
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
@@ -50,6 +53,9 @@ public class TagHandler extends BasicHandler implements WebSocketHandler {
 
     @Autowired
     private WaGetTagPort waGetTagPort;
+
+    @Autowired
+    private PollingTags pollingTags;
 
     @PostConstruct
     private void init() {
@@ -68,24 +74,14 @@ public class TagHandler extends BasicHandler implements WebSocketHandler {
 //            String sessionId = (String) wss.getAttributes().get("sessionId");
 //            System.out.println("ConnectionEstablished: " + sessionId);
 //            sessions.add(wss);
-//            wss.sendMessage(new TextMessage("ConnectionEstablished"));
+////            wss.sendMessage(new TextMessage("ConnectionEstablished"));
 //        }
 
-//        List<Tags> ls = tagsService.findAll();
-//        List<String> names = ls.stream().map(i -> i.getName()).collect(Collectors.toList());
-//        Map<String, Integer> map = waGetTagPort.getMapByTagnames(names);
-
-        JSONObject dataObj = new JSONObject();
-        dataObj.put("sign",1);
-        dataObj.put("sensor","Wh_39:DI_00");
-        dataObj.put("pos","po1/model1<BR>po2/model2<BR>");
-        Map<String, JSONObject> map = new HashMap<>();   
-        map.put("7A-1", dataObj);  
-        String js= new Gson().toJson(map);   
+        String js = pollingTags.getData();
 
         //Push the current status on client first connect
         try {
-            wss.sendMessage(new TextMessage(js));//mapper.writeValueAsString("pollingJob.getData()")
+            wss.sendMessage(new TextMessage(js));
         } catch (Exception e) {
             //Remove session because reconnectedWebSocket.js not trigger ws.close when reconnected
             sessions.remove(wss);
@@ -97,7 +93,7 @@ public class TagHandler extends BasicHandler implements WebSocketHandler {
         synchronized (sessions) {
             int a = sessions.size();
             if (a > 0 && isJobScheduled == false) {
-                pollingDBAndBrocast();
+                pollingAndBrocast();
                 isJobScheduled = true;
             }
         }

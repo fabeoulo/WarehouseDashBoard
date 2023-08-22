@@ -8,11 +8,13 @@ package com.advantech.helper;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author Wei.Cheng
  */
+@Component
 public class ApplicationContextHelper implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext = null;

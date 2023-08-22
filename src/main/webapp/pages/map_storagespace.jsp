@@ -135,7 +135,7 @@
             .blub-abnormal{
                 background-image: url(../images/blub-icon/Yellow_Light_Icon.png);
             }
-            .blub-prepared{
+            .blub-target{
                 background-image: url(../images/blub-icon/Red_Light_Icon.png);
             }
             .suggestMsg{
@@ -322,8 +322,9 @@
 
                 function initWiget(obj) {
                     obj.addClass("blub-empty")
-                            .removeClass("blub-alarm blub-normal blub-abnormal blub-prepared")
-                            .removeAttr("title");
+                            .removeClass("blub-alarm blub-normal blub-abnormal blub-target")
+                            .removeAttr("title")
+                            .off("click").off("mouseover");
                 }
 
                 function testObjectInit() {
@@ -338,7 +339,12 @@
                                 $(this).attr({"id": "draggable" + ssPrefix + startCount + "_" + sitefloor + "f"})
                                         .addClass("draggable blub-empty divCustomBg blub-size")
                                         .html(startCount)
-                                        .tooltipster({updateAnimation: null});
+                                        .tooltipster({  // init tooltipster here.
+                                            contentAsHTML: true, // This enables HTML content in the tooltip
+                                            interactive: true,
+                                            contentCloning: false, // if you use a single element as content for several tooltips, set this option to true
+                                            updateAnimation: null
+                                        });
                                 startCount--;
                             });
                             loopCount += childAmount;
@@ -347,7 +353,12 @@
                                 $(this).attr({"id": "draggable" + ssPrefix + loopCount + "_" + sitefloor + "f"})
                                         .addClass("draggable blub-empty divCustomBg")
                                         .html(loopCount)
-                                        .tooltipster({updateAnimation: null});
+                                        .tooltipster({  // init tooltipster here.
+                                            contentAsHTML: true, // This enables HTML content in the tooltip
+                                            interactive: true,
+                                            contentCloning: false, // if you use a single element as content for several tooltips, set this option to true
+                                            updateAnimation: null
+                                        });
                                 loopCount++;
                             });
                         }
@@ -392,10 +403,10 @@
 
                 function testDataToWiget(obj) {
                     initWiget(testChildElement);
-                    var tagMap = new Map(Object.entries(obj));
-                    var tagIndex = 1;
-                    tagMap.forEach((value, key) => {
-                        var alarmSignal = value.map.sign;
+                    for (var k = 0, l = obj.length; k < l; k++) {
+                        var ss = obj[k];
+
+                        var alarmSignal = ss.map.sign;
                         var signalClass;
                         switch (alarmSignal) {
                             case 0:
@@ -404,28 +415,26 @@
                             case 1:
                                 signalClass = "blub-alarm";
                                 break;
-                            case 2:
-                                signalClass = "blub-abnormal";
+                            case -1:
+                                signalClass = "blub-empty";
                                 break;
                         }
 
-                        $(".testWiget #draggable" + key + "_" + sitefloor + "f")
+                        $(".testWiget #draggable" + ss.map.ssName + "_" + sitefloor + "f")
                                 .removeClass("blub-empty")
                                 .addClass(signalClass)
-                                .tooltipster('destroy')
-                                .tooltipster({
-                                    content: ('儲區: ' + key + '<BR>工單:<BR>' + value.map.pos),
-                                    contentAsHTML: true, // This enables HTML content in the tooltip
-                                    interactive: true,
-                                    contentCloning: false // if you use a single element as content for several tooltips, set this option to true
-                                })
+                                .tooltipster('content', ('儲區: ' + ss.map.ssName + '<BR>工單:<BR>' + ss.map.pos))
                                 .on("click", parent.testClick)
                                 .on("mouseover", function () {
-                                    console.log('感應器: ' + value.map.sensor + ', 值:' + alarmSignal);
+                                    console.log('感應器: ' + ss.map.sensor + ', 值:' + alarmSignal);
                                 });
+                    }
 
-                        tagIndex++;
-                    });
+//                    initWiget(testChildElement);
+//                    var tagMap = new Map(Object.entries(obj));
+//                    tagMap.forEach((value, key) => {
+//                        var alarmSignal = value.map.sign;
+//                    });
                 }
 
                 function babDataToWiget(obj) {
@@ -439,14 +448,14 @@
 
                                 var childElement = $("#" + people.tagName);
                                 if (childElement.length) {
-                                    childElement.removeClass("blub-empty blub-prepared");
+                                    childElement.removeClass("blub-empty blub-target");
 
                                     if ("ismax" in people) {
                                         childElement.addClass((people.ismax ? "blub-alarm" : "blub-normal"))
                                                 .html(people.station)
                                                 .tooltipster('content', "Time:" + people.diff + "秒");
                                     } else {
-                                        childElement.addClass("blub-prepared")
+                                        childElement.addClass("blub-target")
                                                 .html(people.station);
                                     }
                                 }
@@ -467,7 +476,7 @@
                                 var childElement = $("#" + people.fqcLineName + "_1");
                                 if (childElement.length) {
 
-                                    childElement.removeClass("blub-empty blub-prepared");
+                                    childElement.removeClass("blub-empty blub-target");
 
                                     childElement.addClass((people.isPass ? (people.productivity == 0 ?
                                             "blub-abnormal" : "blub-alarm") : "blub-normal"))
@@ -543,8 +552,8 @@
                     //Get the server message and transform into table.
                     ws2.onmessage = function (message) {
                         var jsonArray = $.parseJSON(message.data);
-                        if (jsonArray.length != 0) {
-                            testDataToWiget(jsonArray);
+                        if (jsonArray.myArrayList.length != 0) {
+                            testDataToWiget(jsonArray.myArrayList);
                         }
                     };
                 }
@@ -641,17 +650,17 @@
                     <label for="empty" style="float:left">無資料</label>
                     <div class="draggable blub-empty divCustomBg"></div>
 
-                    <label for="normalSign" style="float:left">正常</label>
+                    <label for="normalSign" style="float:left">空位</label>
                     <div class="draggable blub-normal divCustomBg"></div>
 
-                    <label for="normalSign" style="float:left">警告</label>
+                    <label for="normalSign" style="float:left">滿位</label>
                     <div class="draggable blub-alarm divCustomBg"></div>
 
-                    <label for="normalSign" style="float:left">異常</label>
-                    <div class="draggable blub-abnormal divCustomBg"></div>
+<!--                    <label for="normalSign" style="float:left">異常</label>
+                    <div class="draggable blub-abnormal divCustomBg"></div>-->
 
-                    <label for="normalSign" style="float:left">prepared</label>
-                    <div class="draggable blub-prepared divCustomBg"></div>
+                    <label for="normalSign" style="float:left">目標</label>
+                    <div class="draggable blub-target divCustomBg"></div>
                 </div>
 
                 <div id="mapInfo"></div>

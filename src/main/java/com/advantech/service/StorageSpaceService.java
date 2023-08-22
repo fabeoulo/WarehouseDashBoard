@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,21 @@ public class StorageSpaceService {
         return repo.findByFloor(f);
     }
 
+    public List<StorageSpace> findWhActiveByFloor(Floor f) {
+        List<StorageSpace> l = repo.findByFloor(f);
+        l.forEach(w -> {
+            if (w.getWarehouses() != null) {
+                Hibernate.initialize(w.getWarehouses());
+                w.getWarehouses().forEach(warehouse -> {
+                    if (warehouse.getLineSchedule() != null) {
+                        Hibernate.initialize(warehouse.getLineSchedule());
+                    }
+                });
+            }
+        });
+        return l;
+    }
+
     public StorageSpace findFirstEmptyByFloorAndSsg(Floor f, int ssgId) {
         List<StorageSpace> lss = repo.findEmptyByFloors(Arrays.asList(f));
         Optional<StorageSpace> ss = lss.stream().filter(l -> l.getStorageSpaceGroup().getId() == ssgId).findFirst();
@@ -68,7 +84,7 @@ public class StorageSpaceService {
     public Map<String, List<StorageSpace>> findEmptyMapByFloors(List<Floor> f) {
         List<StorageSpace> l = repo.findEmptyByFloors(f);
         // key of map is random order
-        Map<String, List<StorageSpace>> m =l.stream().collect(Collectors.groupingBy(
+        Map<String, List<StorageSpace>> m = l.stream().collect(Collectors.groupingBy(
                 ss -> ss.getStorageSpaceGroup().getFloor().getName()
         ));
         return new TreeMap<>(m);

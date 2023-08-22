@@ -30,6 +30,7 @@ public class StorageSpace implements java.io.Serializable {
     private StorageSpaceGroup storageSpaceGroup;
     private int priority;
     private boolean blocked;
+    private String tagName;
 
     @JsonIgnore
     private Set<Warehouse> warehouses = new HashSet<Warehouse>(0);
@@ -91,6 +92,15 @@ public class StorageSpace implements java.io.Serializable {
 
     public void setBlocked(boolean blocked) {
         this.blocked = blocked;
+    }
+
+    @Column(name = "tag_name", nullable = true, length = 50)
+    public String getTagName() {
+        return tagName;
+    }
+
+    public void setTagName(String tagName) {
+        this.tagName = tagName;
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "storageSpace")

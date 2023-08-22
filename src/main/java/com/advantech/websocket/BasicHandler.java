@@ -76,7 +76,7 @@ public abstract class BasicHandler {
     }
 
     // Generate when connect users are at least one.
-    protected void pollingDBAndBrocast() {
+    protected void pollingAndBrocast() {
         try {
             ctm.scheduleJob(jobName);
             log.info("Job " + jobName + " has been schedule");

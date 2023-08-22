@@ -1,4 +1,6 @@
 
+import com.advantech.helper.CronTrigMod;
+import com.advantech.helper.HibernateObjectPrinter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -9,6 +11,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -23,10 +27,25 @@ import org.springframework.test.context.web.WebAppConfiguration;
  * @author Wei.Cheng
  */
 @WebAppConfiguration
-@ContextConfiguration(locations = { //    "classpath:servlet-context.xml"
+@ContextConfiguration(locations = {
+    "classpath:servlet-context.xml"
 })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class TestClass {
+
+    @Autowired
+    private CronTrigMod ctm;
+
+    @Test
+    public void testGetBean() {
+
+        try {
+            ctm.scheduleJob("PollingTags");
+            HibernateObjectPrinter.print("Job PollingTags has been schedule");
+        } catch (SchedulerException ex) {
+            HibernateObjectPrinter.print(ex.getMessage(), ex);
+        }
+    }
 
 //    @Test
     public void testSyncData() {

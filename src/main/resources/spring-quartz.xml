@@ -28,6 +28,21 @@
         <property name="cronExpression" value="0 30 22 ? * MON-FRI *" />
     </bean>
 
+    <!--
+        Ohter polling data jobs
+        Job start by endpoint
+    -->
+    <bean name="PollingTags" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="pollingTags" />
+        <property name="targetMethod" value="dataBrocast"/>  
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="PollingTags-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="PollingTags" />
+        <property name="cronExpression" value="10,20,40,50 * 8-20 ? * MON-SAT *" />
+    </bean>
+    
     <!--schedule jobs-->
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">

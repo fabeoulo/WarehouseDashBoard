@@ -20,13 +20,19 @@ import com.advantech.service.StorageSpaceService;
 import com.advantech.service.TagsService;
 import com.advantech.service.UserService;
 import com.advantech.service.WarehouseService;
+import com.sun.javafx.font.FontResource;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -143,7 +149,7 @@ public class TestService {
 //        input.setLength(-1);
 //        OK
 //        int ssgId = 28;
-        List<Floor> f = floorService.findByIdIn(Arrays.asList(1,2,7));
+//        List<Floor> f = floorService.findByIdIn(Arrays.asList(1, 2, 7));
 //        List<StorageSpace> lss = storageSpaceService.findEmptyByFloors(f);
 //        Optional<StorageSpace> ss = lss.stream().filter(l -> l.getStorageSpaceGroup().getId() == ssgId).findFirst();
 //        StorageSpace ss = storageSpaceService.findFirstEmptyByFloorAndPriority(floorService.getOne(7), ssgId);
@@ -153,18 +159,60 @@ public class TestService {
 //            User user = userService.findById(36).get();
 //            warehouseService.batchSave(datas, user, "PUT_IN");
 //        }
+        List<StorageSpace> ls = storageSpaceService.findWhActiveByFloor(floorService.getOne(7));
+//        List<StorageSpace> ls = storageSpaceService.findByFloor(floorService.getOne(7));
+//        List<Integer> ids = ls.stream().map(i -> i.getId()).collect(Collectors.toList());
+//        List<Warehouse> whs = warehouseService.findBySsidsAndFlag(ids, 0);
 
+//        List<String> names = ls.stream().map(i -> i.getTagName())
+//                .filter(tagName -> tagName != null).collect(Collectors.toList());
+//        HibernateObjectPrinter.print(names);
+//        Map<String, JSONObject> map = new TreeMap<>();
+        JSONArray jarray = new JSONArray();
+        ls.forEach(ss -> {
+            StringBuilder sb = new StringBuilder();
+            Set<Warehouse> whs = ss.getWarehouses().stream().filter(wh -> wh.getFlag() == 0).collect(Collectors.toSet());
+            whs.forEach(wh -> {
+                if (wh.getFlag() == 0) {
+                    sb.append(wh.getPo());
+                    if (wh.getLineSchedule() != null) {
+                        sb.append("/" + wh.getLineSchedule().getModelName());
+                    }
+                    sb.append("<br/>");
+                }
+            });
+
+            int sign;
+            String tagName;
+            if (ss.getTagName() == null) {
+                sign = -1;
+                tagName = "N/A";
+            } else {
+                sign = 0;
+                tagName = ss.getTagName();
+            }
+
+            JSONObject dataObj = new JSONObject();
+            dataObj.put("pos", sb);
+            dataObj.put("sign", sign);
+            dataObj.put("sensor", tagName);
+//            map.put(ss.getName(), dataObj);
+            dataObj.put("ssName", ss.getName());
+            jarray.put(dataObj);
+        });
+        HibernateObjectPrinter.print(jarray);
+//        ls.get(0).getWarehouses();
 //        OK
-        Map<String, List<StorageSpace>> m = storageSpaceService.findEmptyMapByFloors(f);
-        Map<String, Integer> m2 = m.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> entry.getValue().size()
-                ));
-        HibernateObjectPrinter.print(m);
-        List<StorageSpace> l = (List<StorageSpace>) m.values().toArray()[0];
-        String florr = l.get(0).getStorageSpaceGroup().getFloor().getName();
-        HibernateObjectPrinter.print(l);
+//        Map<String, List<StorageSpace>> m = storageSpaceService.findEmptyMapByFloors(f);
+//        Map<String, Integer> m2 = m.entrySet().stream()
+//                .collect(Collectors.toMap(
+//                        Map.Entry::getKey,
+//                        entry -> entry.getValue().size()
+//                ));
+//        HibernateObjectPrinter.print(m);
+//        List<StorageSpace> l = (List<StorageSpace>) m.values().toArray()[0];
+//        String florr = l.get(0).getStorageSpaceGroup().getFloor().getName();
+//        HibernateObjectPrinter.print(l);
     }
 //    @Test
 //    @Transactional

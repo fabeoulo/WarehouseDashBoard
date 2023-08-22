@@ -1,5 +1,6 @@
 
 import com.advantech.job.HandleUnfinishedSchedule;
+import com.advantech.job.PollingTags;
 import com.advantech.job.SyncData;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,9 +29,19 @@ public class TestQuartzJob {
 
     @Autowired
     private SyncData syncData;
-    
+
     @Autowired
     private HandleUnfinishedSchedule hus;
+
+    @Autowired
+    private PollingTags pollingTags;
+
+    @Test
+    @Transactional
+    @Rollback(false)
+    public void testPollingTags() {
+        String s = pollingTags.getData();
+    }
 
     @Test
     @Transactional
@@ -38,7 +49,7 @@ public class TestQuartzJob {
     public void testSyncData() {
         syncData.execute();
     }
-    
+
 //    @Test
     @Transactional
     @Rollback(false)

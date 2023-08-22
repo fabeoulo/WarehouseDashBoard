@@ -176,7 +176,7 @@
                 dataType: "json",
                 success: function (response) {
                     var ss_empty_map = new Map(Object.entries(response));
-                    var sel = $("#area-empty").hide();
+                    var sel = $("#area-empty");
                     ss_empty_map.forEach((value, key) => {
                         var areas = value;
                         for (var i = 0; i < areas.length; i++) {
@@ -490,27 +490,6 @@
             }
         });
 
-        $(document).on("click", ".pull-out", function () {
-            var id = $(this).parents(".po").find(".data-id").val();
-            var data = warehouseData["id" + id];
-            if (confirm("Confirm pull out " + data.po + " ?")) {
-                $.ajax({
-                    type: "POST",
-                    url: "<c:url value="/WarehouseController/delete" />",
-                    data: {
-                        id: id
-                    },
-                    dataType: "html",
-                    success: function (response) {
-                        ws.send("REMOVE");
-                    },
-                    error: function (xhr, ajaxOptions, thrownError) {
-                        alert(xhr.responseText);
-                    }
-                });
-            }
-        });
-
         $(document).on("click", ".change-area", function () {
             $(this).hide();
             $(this).parent().find(".storageSpace").show().focus();
@@ -524,8 +503,6 @@
         $(document).on("change", ".storageSpace", function () {
             var ssid = $(this).parents(".storageButton").find(".ss-id").val();
             var ssName = $(this).parents(".storageButton").find(".ss-name").val();
-//            var id = $(this).parents(".po").find(".data-id").val();
-//            var data = warehouseData["id" + id];
             var tarSsid = $(this).val();
             var selText = $(this).children("option:selected").text();
 
@@ -694,15 +671,15 @@
 //                setStorageSpace();
 //            }
 //        }
-        if (ws === undefined) {//|| ws.readyState !== WebSocket.OPEN
-            connectToServer();
-        }
+//        if (ws === undefined) {//|| ws.readyState !== WebSocket.OPEN
+//            connectToServer();
+//        }
     });
 </script>
 
 
 <span class="col-md-12 ">
-    <iframe id="iframe1" style='width:100%; height:550px' frameborder="0" scrolling="no" src="map_storagespace_.jsp?sitefloor=${userSitefloor}" webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
+    <iframe id="iframe1" style='width:100%; height:550px' frameborder="0" scrolling="no" src="map_storagespace.jsp?sitefloor=${userSitefloor}" webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
 </span>
 
 <div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -723,11 +700,6 @@
             <ul class="nav nav-pills" id="nav-links">
 
             </ul>
-        </div>
-
-        <div class="col-12 form-inline">
-            <input type="button" value="Display all" id="all-pos" />
-            <div id="connectionStatus">Disconnected</div>
         </div>
 
         <span class="storageButton">
@@ -767,7 +739,7 @@
                         <label>儲位詳細</label>
                     </td>
                     <td>
-                        <select id="area-empty"></select>
+                        <select id="area-empty" hidden=""></select>
                         <table id="poInsert-table" class="table table-striped">
                             <thead>
                                 <tr>
@@ -800,7 +772,7 @@
                     </td>
                     <td>
                         <select id="area-select" hidden></select>
-                        <select id="group-select"></select>
+                        <select id="group-select" class="form-inline"></select>
                     </td>
                 </tr>
                 <tr>
@@ -816,6 +788,13 @@
                 </tr>
             </table>
         </div>
+        
+
+        <div class="col-12 form-inline">
+            <input type="button" value="Display all" id="all-pos" />
+            <div id="connectionStatus" hidden="">Disconnected</div>
+        </div>
+        
         <div id="dashboard" class="col-12">
             <div class="row"></div>
         </div>
