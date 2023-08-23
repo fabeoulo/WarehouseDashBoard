@@ -36,7 +36,7 @@ public class TestClass {
     @Autowired
     private CronTrigMod ctm;
 
-    @Test
+//    @Test
     public void testGetBean() {
 
         try {

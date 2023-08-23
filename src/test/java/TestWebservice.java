@@ -76,7 +76,7 @@ public class TestWebservice {
 
     @Test
     public void testWaGetTagPort() throws Exception {
-        Map<String, Integer> map = waGetTagPort.getMapByTagnames(Arrays.asList("Wh_39:DI_00,Wh_39:DI_01,Wh_39:DI_02"));
+        Map<String, Integer> map = waGetTagPort.getMapByTagnames(Arrays.asList("Wh_19_block:DI_01","Wh_19_block:DI_00"));
         String js = waGetTagPort.getJsonString(Arrays.asList("Sensor_164:DI_01"));
     }
 }

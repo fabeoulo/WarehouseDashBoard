@@ -4,7 +4,7 @@
 
     <groupId>com.advantech</groupId>
     <artifactId>WarehouseDashBoard</artifactId>
-    <version>1.3.5</version>
+    <version>1.3.6</version>
     <packaging>war</packaging>
 
     <pluginRepositories>
@@ -194,6 +194,23 @@
             <groupId>org.webjars</groupId>
             <artifactId>jquery</artifactId>
             <version>1.12.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty</artifactId>
+            <version>1.0.24</version>
+            <type>zip</type>
+            <classifier>docs</classifier>
+        </dependency>        
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.4.24</version>
         </dependency>
         <dependency>
             <groupId>javax</groupId>
@@ -510,7 +527,7 @@
         </dependency>
         
         <!-- https://mvnrepository.com/artifact/com.sap.conn.jco/sapjco3 -->
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>com.sap.conn.jco</groupId>
             <artifactId>sapjco3</artifactId>
             <version>3.0.14</version>

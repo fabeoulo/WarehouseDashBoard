@@ -129,41 +129,8 @@ public class TestService {
     @Test
     @Transactional
     @Rollback(true)
-    public void testStorageSpaceService() {
-
-//        OK
-//        List<StorageSpace> ss = storageSpaceService.findAllByIdOrdered(Arrays.asList(149, 151));
-//        StorageSpace ss = storageSpaceService.findById(148).get();
-//        HibernateObjectPrinter.print(ss);
-//        StorageSpaceGroup sg = ss.getStorageSpaceGroup();
-//        Floor f = sg.getFloor();
-//        HibernateObjectPrinter.print(f);
-//        Floor sf = floorService.findFloorByStorageSpaceId(150);
-//        HibernateObjectPrinter.print(sf);
-//        int sid = 150;
-//        StorageSpace ls = storageSpaceService.findWithLazyById(sid);
-//        HibernateObjectPrinter.print(ls);
-//        Floor ff = ls.getStorageSpaceGroup().getFloor();
-//        HibernateObjectPrinter.print(ff);
-//        DataTablesInput input = new DataTablesInput();
-//        input.setLength(-1);
-//        OK
-//        int ssgId = 28;
-//        List<Floor> f = floorService.findByIdIn(Arrays.asList(1, 2, 7));
-//        List<StorageSpace> lss = storageSpaceService.findEmptyByFloors(f);
-//        Optional<StorageSpace> ss = lss.stream().filter(l -> l.getStorageSpaceGroup().getId() == ssgId).findFirst();
-//        StorageSpace ss = storageSpaceService.findFirstEmptyByFloorAndPriority(floorService.getOne(7), ssgId);
-//        if (ss != null) {
-//            Warehouse wh = new Warehouse("POPO809test", ss);
-//            List<Warehouse> datas = Arrays.asList(wh);
-//            User user = userService.findById(36).get();
-//            warehouseService.batchSave(datas, user, "PUT_IN");
-//        }
+    public void testPollingData() {
         List<StorageSpace> ls = storageSpaceService.findWhActiveByFloor(floorService.getOne(7));
-//        List<StorageSpace> ls = storageSpaceService.findByFloor(floorService.getOne(7));
-//        List<Integer> ids = ls.stream().map(i -> i.getId()).collect(Collectors.toList());
-//        List<Warehouse> whs = warehouseService.findBySsidsAndFlag(ids, 0);
-
 //        List<String> names = ls.stream().map(i -> i.getTagName())
 //                .filter(tagName -> tagName != null).collect(Collectors.toList());
 //        HibernateObjectPrinter.print(names);
@@ -202,6 +169,42 @@ public class TestService {
         });
         HibernateObjectPrinter.print(jarray);
 //        ls.get(0).getWarehouses();
+    }
+    
+    @Test
+    @Transactional
+    @Rollback(true)
+    public void testStorageSpaceService() {
+
+//        OK
+//        List<StorageSpace> ss = storageSpaceService.findAllByIdOrdered(Arrays.asList(149, 151));
+//        StorageSpace ss = storageSpaceService.findById(148).get();
+//        HibernateObjectPrinter.print(ss);
+//        StorageSpaceGroup sg = ss.getStorageSpaceGroup();
+//        Floor f = sg.getFloor();
+//        HibernateObjectPrinter.print(f);
+//        Floor sf = floorService.findFloorByStorageSpaceId(150);
+//        HibernateObjectPrinter.print(sf);
+//        int sid = 150;
+//        StorageSpace ls = storageSpaceService.findWithLazyById(sid);
+//        HibernateObjectPrinter.print(ls);
+//        Floor ff = ls.getStorageSpaceGroup().getFloor();
+//        HibernateObjectPrinter.print(ff);
+//        DataTablesInput input = new DataTablesInput();
+//        input.setLength(-1);
+//        OK
+//        int ssgId = 28;
+//        List<Floor> f = floorService.findByIdIn(Arrays.asList(1, 2, 7));
+//        List<StorageSpace> lss = storageSpaceService.findEmptyByFloors(f);
+//        Optional<StorageSpace> ss = lss.stream().filter(l -> l.getStorageSpaceGroup().getId() == ssgId).findFirst();
+//        StorageSpace ss = storageSpaceService.findFirstEmptyByFloorAndPriority(floorService.getOne(7), ssgId);
+//        if (ss != null) {
+//            Warehouse wh = new Warehouse("POPO809test", ss);
+//            List<Warehouse> datas = Arrays.asList(wh);
+//            User user = userService.findById(36).get();
+//            warehouseService.batchSave(datas, user, "PUT_IN");
+//        }
+
 //        OK
 //        Map<String, List<StorageSpace>> m = storageSpaceService.findEmptyMapByFloors(f);
 //        Map<String, Integer> m2 = m.entrySet().stream()
