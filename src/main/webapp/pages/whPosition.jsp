@@ -39,7 +39,7 @@
         position: absolute;
     }
     .row>div{
-        border:1px black solid;
+        border: 1px black solid;
     }
     .red{
         color: red
@@ -72,19 +72,7 @@
         stroke:;
         stroke-opacity:0.50
     }
-    .noBorder {
-        border: none;
-    }
 </style>
-
-<!-- used for ifrmae jsp-->
-<script>
-    function testClick() {
-//        var groupSel = $("#group-select");
-//        var val = groupSel.val();
-        console.log("val");
-    }
-</script>
 
 <script>
     $(document).ajaxSend(function () {
@@ -124,9 +112,16 @@
         var warehouseData = [];
         var poModelMap = new Map();
         var ss_id = [];
+        var ss_name = [];
         const allFloorIds = [1, 2, 7];
 
-        var floorDtComfig = {
+
+        $("#testFrame").click(function () {
+            childF(ss_name);
+            console.log("tetF");
+        });
+
+        var floorDtConfig = {
             dom: 'rt',
             ordering: false,
             "ajax": {
@@ -149,14 +144,14 @@
                 {data: "emptyCount", title: "空儲位"}
             ]
         };
-        var floorTable = $('#floorSs').DataTable(floorDtComfig);
+        var floorTable = $('#floorAllSs').DataTable(floorDtConfig);
 
         function setPoModelMap() {
             $.ajax({
                 type: "GET",
                 url: "<c:url value="/LineScheduleController/findMap" />",
                 data: {
-                    floor_id: 3                                     //floor_id: in [1,2,3]
+                    floor_id: floor_id                                   //floor_id: in [1,2,3]
                 },
                 dataType: "json",
                 success: function (response) {
@@ -297,7 +292,7 @@
 
         }
 
-        var dashboardOk = function (response) {
+        function storageToDashboard(response, isSetMap) {
             resetDashboard();
             var areas = response;
             for (var i = 0; i < areas.length; i++) {
@@ -313,9 +308,13 @@
                 target.append("<div id='po_content_" + str.id + "' class='po_content form-inline col-12'></div>");
 
                 ss_id.push(str.id);
+                if (isSetMap) {
+                    ss_name.push(str.name);
+                }
             }
 //                    ws.send("ADD");
             refreshTable();
+            setMapTarget(ss_name);
 
             //regist faq button event
             $('body').on('click', '.storage-faq, #dashboard label', function () {
@@ -377,13 +376,15 @@
             });
         }
 
-        function findStorageSpaceByIds() {
+        function findStorageSpaceByIds(isSetTarget) {
             $.ajax({
                 type: "GET",
                 url: "<c:url value="/StorageSpaceController/findByIds" />",
                 data: {ids: ss_id.join(',')},
                 dataType: "json",
-                success: dashboardOk,
+                success: function (response) {
+                    storageToDashboard(response, isSetTarget);
+                },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(xhr.responseText);
                 }
@@ -401,13 +402,14 @@
         function resetDashboard() {
             dashboard.children().remove();
             ss_id = [];
+            ss_name = [];
         }
 
 //        setStorageSpaceEmptyOptions();
         setStorageSpaceModOptions();
         setPoModelMap();
 
-        $("#all-pos").click(function () {
+        $("#ssg-detail").click(function () {
             $.ajax({
                 type: "GET",
                 url: "<c:url value="/StorageSpaceController/findByFloor" />",
@@ -415,7 +417,9 @@
                     id: floor_id
                 },
                 dataType: "json",
-                success: dashboardOk,
+                success: function (response) {
+                    storageToDashboard(response, false);
+                },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert(xhr.responseText);
                 }
@@ -455,7 +459,7 @@
                         var ssMap = new Map(Object.entries(response));
                         if (ssMap.has("ssId")) {
                             ss_id.push(ssMap.get("ssId"));
-                            findStorageSpaceByIds();
+                            findStorageSpaceByIds(true);
                         } else {
                             alert("Fail. No space.");
                         }
@@ -477,9 +481,9 @@
                     data: {
                         ssId: id
                     },
-                    dataType: "html",
+                    dataType: "json",
                     success: function (response) {
-//                        console.log(response);
+                        alert(response);
 //                        ws.send("REMOVE");
                         refreshTable();
                     },
@@ -506,7 +510,7 @@
             var tarSsid = $(this).val();
             var selText = $(this).children("option:selected").text();
 
-            if (tarSsid == -1) {
+            if (tarSsid === -1 || ssid === tarSsid) {
                 return false;
             }
 
@@ -524,12 +528,14 @@
                         alert("success");
 //                        ws.send("ADD");
                         ss_id.splice(ss_id.indexOf(Number(ssid)), 1, Number(tarSsid));
-                        findStorageSpaceByIds();
+                        findStorageSpaceByIds(false);
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         alert(xhr.responseText);
                     }
                 });
+            } else {
+                $(this).val(-1);
             }
         });
 
@@ -592,7 +598,9 @@
                         floorId: floor_id
                     },
                     dataType: "json",
-                    success: dashboardOk,
+                    success: function (response) {
+                        storageToDashboard(response, false);
+                    },
                     error: function (xhr, ajaxOptions, thrownError) {
                         alert(xhr.responseText);
                     }
@@ -678,9 +686,10 @@
 </script>
 
 
-<span class="col-md-12 ">
-    <iframe id="iframe1" style='width:100%; height:550px' frameborder="0" scrolling="no" src="map_storagespace.jsp?sitefloor=${userSitefloor}" webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
-</span>
+<c:import url="${param.map}.jsp?sitefloor=${userSitefloor}" /> 
+<!--<span class="col-md-12 ">
+    <iframe id="map-iframe" style='width:100%; height:550px' frameborder="0" scrolling="no" src="${param.map}.jsp?sitefloor=${userSitefloor}" webkitAllowFullScreen mozAllowFullScreen allowFullScreen>您的瀏覽器不支援內嵌網頁!?</iframe>
+</span>-->
 
 <div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -788,24 +797,20 @@
                 </tr>
             </table>
         </div>
-        
+
 
         <div class="col-12 form-inline">
-            <input type="button" value="Display all" id="all-pos" />
+            <!--<input type="button" value="testFrame" id="testFrame" />-->
+            <input type="button" value="Display all" id="ssg-detail" />
             <div id="connectionStatus" hidden="">Disconnected</div>
         </div>
-        
+
         <div id="dashboard" class="col-12">
             <div class="row"></div>
         </div>
 
     </div>
 </div>
-<span class="col-md-3 offset-md-1 noBorder">
-    <table id="floorSs"  cellspacing="10" class="table table-bordered"></table>
+<span class="col-md-3 offset-md-1 ">
+    <table id="floorAllSs"  cellspacing="10" class="table table-bordered"></table>
 </span>
-
-<!--
-<span class="col-md-12" id="check">
-<%--<c:import url="${param.map}.jsp" />--%> 
-</span>>-->

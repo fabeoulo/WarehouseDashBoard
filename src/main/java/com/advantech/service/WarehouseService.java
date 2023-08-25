@@ -115,6 +115,9 @@ public class WarehouseService {
     }
 
     public void batchSave(List<Warehouse> whList, User user, String action) {
+        if (whList.isEmpty()) {
+            return;
+        }
         repo.saveAll(whList);
         List<WarehouseEvent> whE = whList.stream().map(w -> new WarehouseEvent(w, user, action)).collect(Collectors.toList());
         warehouseEventService.saveAll(whE);
@@ -164,6 +167,9 @@ public class WarehouseService {
 //                .collect(Collectors.toList());
 //        this.batchSave(whTemp, user, "PUT_IN");
 
+        if (whSrc.isEmpty()) {
+            return;
+        }
         StorageSpace srcSs = storageSpaceService.findById(whSrc.get(0).getStorageSpace().getId()).get();
         srcSs.setBlocked(false);
         StorageSpace tarSs = storageSpaceService.findById(tarSsid).get();

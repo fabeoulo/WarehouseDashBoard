@@ -9,11 +9,11 @@ var mapInfo = {
 
 var titleGroup = [
     //assy
-    {lineName: "Assy", x: 312, y: 271},
-    {lineName: "Pkg", x: 312, y: 171}
+    {lineName: "Assy", x: 312, y: 255},
+    {lineName: "Pkg", x: 312, y: 153}
 ];
 var testGroup = [
-    {people: 8, x: 424, y: 313, reverse: true, ssPrefix: '7A-'} // group 27
+    {people: 8, x: 418, y: 302, reverse: true, ssPrefix: '7A-'} // group 27
 ];
 var babGroup = [
 //    {people: 3, x: 690, y: 280, lineName: "NA"} // group 1-4

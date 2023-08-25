@@ -49,12 +49,6 @@ public class TagHandler extends BasicHandler implements WebSocketHandler {
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
-    private TagsService tagsService;
-
-    @Autowired
-    private WaGetTagPort waGetTagPort;
-
-    @Autowired
     private PollingTags pollingTags;
 
     @PostConstruct

@@ -141,7 +141,7 @@ public class WarehouseController extends CrudController<Warehouse> {
     @ResponseBody
     @RequestMapping(value = "batchChangeStorageSpace", method = {RequestMethod.POST})
     protected ResponseEntity batchChangeStorageSpace(@RequestParam int srcSsid, @RequestParam int tarSsid) throws Exception {
-        List<Warehouse> whs = warehouseService.findBySsidsAndFlag(Arrays.asList(srcSsid), 0);
+        List<Warehouse> whs = this.findBySsid(null, Arrays.asList(srcSsid));
         User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
         warehouseService.batchChangeStorageSpace(whs, user,tarSsid);
         return serverResponse(SUCCESS_MESSAGE);

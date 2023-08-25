@@ -215,7 +215,6 @@
                     <div class="row">
                         <c:catch var="e">
                             <c:import url="${param.content}.jsp" />
-                            <%--<c:import url="${param.map}.jsp" />--%>
                         </c:catch>
                         <c:if test="${!empty e}">
                             Error: page not found
