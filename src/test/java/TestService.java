@@ -20,6 +20,7 @@ import com.advantech.service.StorageSpaceService;
 import com.advantech.service.TagsService;
 import com.advantech.service.UserService;
 import com.advantech.service.WarehouseService;
+import com.google.gson.Gson;
 import com.sun.javafx.font.FontResource;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -126,11 +127,17 @@ public class TestService {
         List<String> names = ls.stream().map(i -> i.getName()).collect(Collectors.toList());
     }
 
+    private final List<Integer> allFloorIds = Arrays.asList(1, 2, 7);
+
     @Test
     @Transactional
     @Rollback(true)
     public void testPollingData() {
-        List<StorageSpace> ls = storageSpaceService.findWhActiveByFloor(floorService.getOne(7));
+        List<StorageSpace> ls = storageSpaceService.findWhActiveByFloors(floorService.findByIdIn(allFloorIds));
+        List<Integer> ids = ls.stream().map(i -> i.getId()).collect(Collectors.toList());
+        Map<Integer, List<Warehouse>> ssToWhsMap = warehouseService.getActiveWhsByIdsMap(ids, 0);
+
+//        List<StorageSpace> ls = storageSpaceService.findWhActiveByFloor(floorService.getOne(7));
 //        List<String> names = ls.stream().map(i -> i.getTagName())
 //                .filter(tagName -> tagName != null).collect(Collectors.toList());
 //        HibernateObjectPrinter.print(names);
@@ -138,15 +145,13 @@ public class TestService {
         JSONArray jarray = new JSONArray();
         ls.forEach(ss -> {
             StringBuilder sb = new StringBuilder();
-            Set<Warehouse> whs = ss.getWarehouses().stream().filter(wh -> wh.getFlag() == 0).collect(Collectors.toSet());
+            List<Warehouse> whs = ssToWhsMap.containsKey(ss.getId()) ? ssToWhsMap.get(ss.getId()) : new ArrayList<>();
             whs.forEach(wh -> {
-                if (wh.getFlag() == 0) {
-                    sb.append(wh.getPo());
-                    if (wh.getLineSchedule() != null) {
-                        sb.append("/" + wh.getLineSchedule().getModelName());
-                    }
-                    sb.append("<br/>");
+                sb.append(wh.getPo());
+                if (wh.getLineSchedule() != null) {
+                    sb.append("/" + wh.getLineSchedule().getModelName());
                 }
+                sb.append("<br/>");
             });
 
             int sign;
@@ -167,10 +172,10 @@ public class TestService {
             dataObj.put("ssName", ss.getName());
             jarray.put(dataObj);
         });
-        HibernateObjectPrinter.print(jarray);
+        HibernateObjectPrinter.print(new Gson().toJson(jarray));
 //        ls.get(0).getWarehouses();
     }
-    
+
     @Test
     @Transactional
     @Rollback(true)
@@ -204,7 +209,6 @@ public class TestService {
 //            User user = userService.findById(36).get();
 //            warehouseService.batchSave(datas, user, "PUT_IN");
 //        }
-
 //        OK
 //        Map<String, List<StorageSpace>> m = storageSpaceService.findEmptyMapByFloors(f);
 //        Map<String, Integer> m2 = m.entrySet().stream()

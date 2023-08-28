@@ -53,24 +53,14 @@ public class StorageSpaceService {
     }
 
     public List<StorageSpace> findByFloor(Floor f) {
-        return repo.findByFloor(f);
+        return repo.findByFloors(Arrays.asList(f));
     }
 
-    public List<StorageSpace> findWhActiveByFloor(Floor f) {
-        List<StorageSpace> l = repo.findByFloor(f);
-        l.forEach(w -> {
-            if (w.getWarehouses() != null) {
-                Hibernate.initialize(w.getWarehouses());
-                w.getWarehouses().forEach(warehouse -> {
-                    if (warehouse.getLineSchedule() != null) {
-                        Hibernate.initialize(warehouse.getLineSchedule());
-                    }
-                });
-            }
-        });
+    public List<StorageSpace> findWhActiveByFloors(List<Floor> f) {
+        List<StorageSpace> l = repo.findByFloors(f);
         return l;
     }
-
+    
     public StorageSpace findFirstEmptyByFloorAndSsg(Floor f, int ssgId) {
         List<StorageSpace> lss = repo.findEmptyByFloors(Arrays.asList(f));
         Optional<StorageSpace> ss = lss.stream().filter(l -> l.getStorageSpaceGroup().getId() == ssgId).findFirst();

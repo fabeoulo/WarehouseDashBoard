@@ -1,7 +1,7 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * AND open the template in the editor.
  */
 package com.advantech.repo;
 
@@ -29,15 +29,15 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Integer> {
      */
     public List<Warehouse> findByFlag(int flag);
 
-    @Query("select w from Warehouse w join w.storageSpace sp where sp.id IN ?1 and w.flag = ?2")
-    public List<Warehouse> findByIdsAndFlag(List<Integer> ids, int flag);
+    @Query("SELECT w FROM Warehouse w JOIN w.storageSpace ss LEFT JOIN FETCH w.lineSchedule WHERE ss.id IN ?1 AND w.flag = ?2")
+    public List<Warehouse> findBySsidsAndFlag(List<Integer> ids, int flag);
 
-    @Query("select w from Warehouse w join w.storageSpace sp join sp.storageSpaceGroup g where g.floor = :floor and w.flag = :flag")
+    @Query("SELECT w FROM Warehouse w JOIN w.storageSpace sp JOIN sp.storageSpaceGroup g WHERE g.floor = :floor AND w.flag = :flag")
     public List<Warehouse> findByFloorAndFlag(@Param("floor") Floor floor, @Param("flag") int flag);
 
-    @Query("select w from Warehouse w join w.storageSpace sp join sp.storageSpaceGroup g where g.floor = ?2 and w.po IN ?1 and w.flag = ?3")
+    @Query("SELECT w FROM Warehouse w JOIN w.storageSpace sp JOIN sp.storageSpaceGroup g WHERE g.floor = ?2 AND w.po IN ?1 AND w.flag = ?3")
     public List<Warehouse> findByPosAndFloorAndFlag(List<String> pos, Floor floor, int flag);
 
-    @Query("select w from Warehouse w join w.storageSpace sp join sp.storageSpaceGroup g where sp.storageSpaceGroup = :ssg and w.flag = :flag")
+    @Query("SELECT w FROM Warehouse w JOIN w.storageSpace sp JOIN sp.storageSpaceGroup g WHERE sp.storageSpaceGroup = :ssg AND w.flag = :flag")
     public List<Warehouse> findByStorageSpaceGroupAndFlag(@Param("ssg") StorageSpaceGroup storageSpaceGroup, @Param("flag") int flag);
 }

@@ -8,9 +8,11 @@ import com.advantech.model.StorageSpace;
 import com.advantech.model.Warehouse;
 import com.advantech.service.FloorService;
 import com.advantech.service.StorageSpaceService;
+import com.advantech.service.WarehouseService;
 import com.advantech.webservice.port.WaGetTagPort;
 import com.advantech.websocket.TagHandler;
 import com.google.gson.Gson;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +35,8 @@ public class PollingTags implements PollingJob {
 
     private static final Logger log = LoggerFactory.getLogger(PollingTags.class);
 
+    private final List<Integer> allFloorIds = Arrays.asList(1, 2, 7);
+
     @Autowired
     private TagHandler socket;
 
@@ -41,6 +45,9 @@ public class PollingTags implements PollingJob {
 
     @Autowired
     private StorageSpaceService storageSpaceService;
+
+    @Autowired
+    private WarehouseService warehouseService;
 
     @Autowired
     private WaGetTagPort waGetTagPort;
@@ -57,31 +64,33 @@ public class PollingTags implements PollingJob {
 
     public String getData() {
 
-        List<StorageSpace> ls = storageSpaceService.findWhActiveByFloor(floorService.getOne(7));
-//        List<String> names = ls.stream().map(i -> i.getTagName())
-//                .filter(tagName -> tagName != null).collect(Collectors.toList());
-//        Map<String, Integer> tagMap = waGetTagPort.getMapByTagnames(names);
+        List<StorageSpace> ls = storageSpaceService.findWhActiveByFloors(floorService.findByIdIn(allFloorIds));
+        List<Integer> ids = ls.stream().map(i -> i.getId()).collect(Collectors.toList());
+        Map<Integer, List<Warehouse>> ssToWhsMap = warehouseService.getActiveWhsByIdsMap(ids, 0);
+
+        List<String> names = ls.stream().map(i -> i.getTagName())
+                .filter(tagName -> tagName != null).collect(Collectors.toList());
+        Map<String, Integer> tagMap = waGetTagPort.getMapByTagnames(names);
+
         JSONArray jarray = new JSONArray();
         ls.forEach(ss -> {
             StringBuilder sb = new StringBuilder();
-            Set<Warehouse> whs = ss.getWarehouses().stream().filter(wh -> wh.getFlag() == 0).collect(Collectors.toSet());
+            List<Warehouse> whs = ssToWhsMap.containsKey(ss.getId()) ? ssToWhsMap.get(ss.getId()) : new ArrayList<>();
             whs.forEach(wh -> {
-                if (wh.getFlag() == 0) {
-                    sb.append(wh.getPo());
-                    if (wh.getLineSchedule() != null) {
-                        sb.append("/" + wh.getLineSchedule().getModelName());
-                    }
-                    sb.append("<br/>");
+                sb.append(wh.getPo());
+                if (wh.getLineSchedule() != null) {
+                    sb.append("/" + wh.getLineSchedule().getModelName());
                 }
+                sb.append("<br/>");
             });
 
             int sign;
             String tagName;
-            if (ss.getTagName() == null) {
+            if (!tagMap.containsKey(ss.getTagName())) {
                 sign = -1;
                 tagName = "N/A";
             } else {
-                sign = ss.isBlocked() ? 1 : 0;
+                sign = tagMap.get(ss.getTagName());// ss.isBlocked() ? 1 : 0;
                 tagName = ss.getTagName();
             }
 

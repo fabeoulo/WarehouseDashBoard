@@ -5,26 +5,8 @@
 package com.advantech.websocket;
 
 import com.advantech.job.PollingTags;
-import com.advantech.model.StorageSpace;
-import com.advantech.model.Tags;
-import com.advantech.model.Warehouse;
-import com.advantech.service.FloorService;
-import com.advantech.service.StorageSpaceService;
-import com.advantech.service.TagsService;
-import com.advantech.webservice.port.WaGetTagPort;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,11 +53,9 @@ public class TagHandler extends BasicHandler implements WebSocketHandler {
 ////            wss.sendMessage(new TextMessage("ConnectionEstablished"));
 //        }
 
-        String js = pollingTags.getData();
-
         //Push the current status on client first connect
         try {
-            wss.sendMessage(new TextMessage(js));
+            wss.sendMessage(new TextMessage(pollingTags.getData()));
         } catch (Exception e) {
             //Remove session because reconnectedWebSocket.js not trigger ws.close when reconnected
             sessions.remove(wss);

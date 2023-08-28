@@ -227,7 +227,7 @@
 //                        var content = "";
 //                        content += "<li class='nav-item'>";
 //                        content += "<a class='nav-link" + (group_id != null && group_id == str.id ? " active" : "") +
-//                                "' href='layout.jsp?content=whPosition&map=map_storagespace&group_id=" + str.id + "&floor_id=" + floor_id + "#'>AREA " + str.name + "</a>";
+//                                "' href='layout.jsp?content=whPosition&map=_map_storagespace&group_id=" + str.id + "&floor_id=" + floor_id + "#'>AREA " + str.name + "</a>";
 //                        content += "</li>";
 //                        groupAreas.append(content);
 
@@ -534,7 +534,8 @@
                         alert(xhr.responseText);
                     }
                 });
-            } else {
+            } 
+            else {
                 $(this).val(-1);
             }
         });

@@ -137,7 +137,7 @@
                                 </li>
                             </c:if>
                             <li>
-                                <a href="layout.jsp?content=whPosition&map=map_storagespace&floor_id=7#">7FDemo</a>
+                                <a href="layout.jsp?content=whPosition&map=_map_storagespace&floor_id=7#">7FDemo</a>
                             </li>
                         </ul>
                     </li>

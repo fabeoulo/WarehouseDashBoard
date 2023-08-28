@@ -56,8 +56,8 @@ public class WarehouseService {
         return repo.findById(id);
     }
 
-    public List<Warehouse> findBySsidsAndFlag(List<Integer> storageSpaceId, int flag) {
-        List<Warehouse> l = repo.findByIdsAndFlag(storageSpaceId, flag);
+    public List<Warehouse> findBySsidsAndFlag(List<Integer> ssIds, int flag) {
+        List<Warehouse> l = repo.findBySsidsAndFlag(ssIds, flag);
         l.forEach(w -> {
             if (w.getLineSchedule() != null) {
                 Hibernate.initialize(w.getLineSchedule());
@@ -65,6 +65,11 @@ public class WarehouseService {
             }
         });
         return l;
+    }
+
+    public Map<Integer, List<Warehouse>> getActiveWhsByIdsMap(List<Integer> ssIds, int flag) {
+        List<Warehouse> l = repo.findBySsidsAndFlag(ssIds, flag);
+        return l.stream().collect(Collectors.groupingBy(wh -> wh.getStorageSpace().getId()));
     }
 
     public List<Warehouse> findByStorageSpaceGroupAndFlag(StorageSpaceGroup storageSpaceGroup, int flag) {

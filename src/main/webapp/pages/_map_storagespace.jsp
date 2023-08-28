@@ -1,5 +1,5 @@
 <%-- 
-    Document   : map_storagespace_
+    Document   : _map_storagespace
     Created on : 2023年8月17日, 上午11:12:50
     Author     : Justin.Yeh
 --%>
@@ -205,13 +205,6 @@
                 .addClass(blubClass);
     }
 
-//    $(document).on("click", ".testWiget div", function () {
-//        var bulbId = $(this).attr("id");
-//        var ssId = bulbId.replace(/^draggable|_7f$/g, "");
-//        
-//        setBlubClass($(this), "blub-target");
-//    });
-
     $(function () {
         var log = $("#log");
         var infoArea = $("#infoArea");
@@ -286,10 +279,10 @@
         }
 
         function initTestGroup() {
-            for (var i = 0; i < testGroup.length; i++) {
+            for (var i = 0; i < ssBabGroup.length; i++) {
                 $("#testArea").append("<div></div>");
                 var thisDiv = $("#testArea>div").eq(i);
-                var groupStatus = testGroup[i];
+                var groupStatus = ssBabGroup[i];
                 var style = {left: groupStatus.x + pXa, top: groupStatus.y + pYa};
                 if ('straight' in groupStatus) {
                     style.width = "10px";
@@ -418,7 +411,7 @@
             });
         }
 
-        function testDataToWiget(obj) {
+        function storageSpaceToWiget(obj) {
             resetBlub(testChildElement);
             for (var k = 0, l = obj.length; k < l; k++) {
                 var ss = obj[k];
@@ -564,14 +557,14 @@
 //                    closeConnect();
         };
 
-        if (testGroup.length != 0 || babGroup.length != 0) {
+        if (ssBabGroup.length != 0 || babGroup.length != 0) {
             ws2 = new ReconnectingWebSocket("ws://" + hostname + "/WarehouseDashBoard/tagHandler");
             setWebSocketClient(ws2);
             //Get the server message and transform into table.
             ws2.onmessage = function (message) {
                 var jsonArray = $.parseJSON(message.data);
                 if (jsonArray.myArrayList.length != 0) {
-                    testDataToWiget(jsonArray.myArrayList);
+                    storageSpaceToWiget(jsonArray.myArrayList);
                 }
             };
         }

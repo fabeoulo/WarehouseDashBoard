@@ -12,7 +12,7 @@ var titleGroup = [
     {lineName: "Assy", x: 312, y: 255},
     {lineName: "Pkg", x: 312, y: 153}
 ];
-var testGroup = [
+var ssBabGroup = [
     {people: 8, x: 418, y: 302, reverse: true, ssPrefix: '7A-'} // group 27
 ];
 var babGroup = [
