@@ -117,7 +117,6 @@
 
 
         $("#testFrame").click(function () {
-            childF(ss_name);
             console.log("tetF");
         });
 
@@ -151,7 +150,7 @@
                 type: "GET",
                 url: "<c:url value="/LineScheduleController/findMap" />",
                 data: {
-                    floor_id: floor_id                                   //floor_id: in [1,2,3]
+                    floor_id: 3                                   //floor_id: in [1,2,3]
                 },
                 dataType: "json",
                 success: function (response) {
@@ -318,10 +317,10 @@
 
             //regist faq button event
             $('body').on('click', '.storage-faq, #dashboard label', function () {
-                var labelName = $(this).attr("data-toggle");
-                var target = $("#imagemodal #polygon-" + labelName);
-                highlightSelectArea(target);
-                $('#imagemodal').modal('show');
+//                var labelName = $(this).attr("data-toggle");
+//                var target = $("#imagemodal #polygon-" + labelName);
+//                highlightSelectArea(target);
+//                $('#imagemodal').modal('show');
             });
 
         }

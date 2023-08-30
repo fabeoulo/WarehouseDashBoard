@@ -191,7 +191,6 @@
 
     function setMapTarget(ssName) {
         for (var i = 0; i < ssName.length; i++) {
-            console.log("for=" + ssName[i]);
             var thisDiv = $(".testWiget #draggable" + ssName[i] + "_" + sitefloor + "f");
             setBlubClass(thisDiv, "blub-target");
         }
@@ -230,7 +229,7 @@
         dragableWiget.addClass("adjustPosition");
         dragableWiget.not(".clearWiget").addClass("ui-helper").draggable({
             drag: function (e) {
-//                        return false;
+                        return false;
             }
         });
 
@@ -437,7 +436,11 @@
                 }
                 thisDiv.tooltipster('content', ('儲區: ' + ss.map.ssName + '<BR>工單:<BR>' + ss.map.pos))
                         .on("click", function () {
-//                            setBlubClass($(this), "blub-target");
+                            if ($(this).hasClass("blub-target")) {
+                                setBlubClass($(this), "blub-empty");
+//                            } else {
+//                                setBlubClass($(this), "blub-target");
+                            }
                         });
             }
 
@@ -618,7 +621,7 @@
         }
 
         function getDetails(lineName) {
-            alert(lineName);
+//            alert(lineName);
 //                    $.ajax({
 //                        url: "<c:url value="/BabSettingHistoryController/findProcessingByLine" />",
 //                        method: 'GET',

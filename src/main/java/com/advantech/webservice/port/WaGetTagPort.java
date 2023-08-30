@@ -65,7 +65,7 @@ public class WaGetTagPort extends WebAccess {
                 .filter(f -> (f.getValue() == 0 || f.getValue() == 1))
                 .collect(Collectors.toMap(TagNode::getName, TagNode::getValue));
 
-        log.log(Level.INFO, "initActiveTagNodes.map.size() : {0}", map.size());
+//        log.log(Level.INFO, "initActiveTagNodes.map.size() : {0}", map.size());
         return map;
     }
 

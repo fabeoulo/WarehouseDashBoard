@@ -40,7 +40,7 @@
     
     <bean id="PollingTags-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail" ref="PollingTags" />
-        <property name="cronExpression" value="0,10,20,30,40,50 * 8-20 ? * MON-SAT *" />
+        <property name="cronExpression" value="0/10 * 8-20 ? * MON-SAT *" />
     </bean>
     
     <!--schedule jobs-->
