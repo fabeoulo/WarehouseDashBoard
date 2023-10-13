@@ -90,8 +90,11 @@ public class PollingTags implements PollingJob {
                 sign = -1;
                 tagName = "N/A";
             } else {
-                sign = tagMap.get(ss.getTagName());// ss.isBlocked() ? 1 : 0;
+                sign = tagMap.get(ss.getTagName());
                 tagName = ss.getTagName();
+//                if (sign != 1 && ss.isBlocked()) {
+//                    sign = 2;
+//                }
             }
 
             JSONObject dataObj = new JSONObject();

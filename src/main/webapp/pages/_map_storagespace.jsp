@@ -229,7 +229,7 @@
         dragableWiget.addClass("adjustPosition");
         dragableWiget.not(".clearWiget").addClass("ui-helper").draggable({
             drag: function (e) {
-                        return false;
+                return false;
             }
         });
 
@@ -418,15 +418,18 @@
                 var alarmSignal = ss.map.sign;
                 var signalClass;
                 switch (alarmSignal) {
+                    case - 1:
+                        signalClass = "blub-empty";
+                        break;
                     case 0:
                         signalClass = "blub-normal";
                         break;
                     case 1:
                         signalClass = "blub-alarm";
                         break;
-                    case - 1:
-                        signalClass = "blub-empty";
-                        break;
+//                    case 2:
+//                        signalClass = "blub-target";
+//                        break;
                 }
 
                 var thisDiv = $(".testWiget #draggable" + ss.map.ssName + "_" + sitefloor + "f");

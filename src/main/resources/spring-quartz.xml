@@ -58,6 +58,8 @@
         <property name="configLocation">
             <value>classpath:quartz.properties</value>
         </property>
+        
+        <property name="waitForJobsToCompleteOnShutdown" value="true" />
     </bean>
     
 </beans>

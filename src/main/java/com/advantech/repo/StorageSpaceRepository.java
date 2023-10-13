@@ -23,7 +23,7 @@ public interface StorageSpaceRepository extends JpaRepository<StorageSpace, Inte
 
     @Query("SELECT s FROM StorageSpace s JOIN s.storageSpaceGroup sg "
             + "WHERE sg.floor IN ?1 AND sg.enabled = 1 "
-            + "ORDER BY sg.floor.id, sg.priority, s.priority")
+            + "ORDER BY sg.floor.id, sg.priority, s.name")
     public List<StorageSpace> findByFloors(List<Floor> f);
 
     @Query("SELECT s FROM StorageSpace s JOIN s.storageSpaceGroup sg "
